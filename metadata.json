@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Remix: Дневник тренировок",
+  "description": "Современное приложение для спортзала: тренировочный дневник с прогрессией нагрузок, таймером отдыха, калькулятором калорий и БЖУ на русском языке.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

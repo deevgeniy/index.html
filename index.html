@@ -2,27 +2,320 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мой тренажёрный дневник</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="theme-color" content="#0a0c0f">
+    <title>GYM PRO — Дневник тренировок</title>
     <style>
-        body { font-family: system-ui; background: #0a0c0f; color: white; padding: 20px; text-align: center; }
-        .card { background: #1a1e28; border-radius: 20px; padding: 16px; margin: 12px 0; }
-        button { background: #ffb347; border: none; padding: 12px 24px; border-radius: 30px; font-weight: bold; margin-top: 20px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: #0a0c0f; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #eef2ff; padding-bottom: 80px; }
+        .app-container { max-width: 560px; margin: 0 auto; padding: 18px 16px 90px; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 560px; margin: 0 auto; background: #111417e6; backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding: 10px 16px 22px; border-top: 0.5px solid #2a2f38; z-index: 100; }
+        .nav-btn { background: none; border: none; color: #8e96a6; font-size: 13px; font-weight: 500; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 40px; cursor: pointer; }
+        .nav-btn.active { color: #ffb347; background: #1e1f2c; }
+        .nav-icon { font-size: 24px; }
+        .card { background: #12151c; border-radius: 28px; padding: 20px 16px; margin-bottom: 20px; border: 1px solid #262c34; }
+        .section-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .exercise-card { background: #0f1219; border-radius: 24px; padding: 16px; margin-bottom: 20px; border-left: 3px solid #ffb347; }
+        .exercise-name { font-size: 18px; font-weight: 700; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .set-row { background: #1a1e28; border-radius: 20px; padding: 12px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+        .set-number { font-weight: 600; width: 50px; }
+        .input-group { display: flex; gap: 8px; background: #0b0e14; padding: 4px 10px; border-radius: 40px; align-items: center; }
+        .input-group input { background: none; border: none; color: #fff; width: 55px; font-size: 16px; font-weight: 500; text-align: center; outline: none; }
+        .timer-btn, .btn-primary { background: #2a2f3c; border: none; padding: 8px 14px; border-radius: 40px; color: white; font-weight: 500; font-size: 13px; cursor: pointer; }
+        .btn-primary { background: #ffb347; color: #0a0c0f; width: 100%; text-align: center; font-weight: 700; padding: 12px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .food-log { background: #0f1219; border-radius: 20px; padding: 12px; margin: 10px 0; }
+        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-top: 12px; }
+        .calendar-day { padding: 8px; border-radius: 30px; background: #1a1e28; }
+        .calendar-day.workout { background: #ffb347; color: #0a0c0f; }
+        .photo-preview { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; margin-left: 10px; }
+        button:active { transform: scale(0.97); }
+        input[type=file] { display: none; }
     </style>
 </head>
 <body>
-    <h1>🏋️ Дневник тренировок</h1>
-    <div class="card">
-        <p>✅ GitHub Pages работает!</p>
-        <p>Сейчас вы видите тестовую страницу.</p>
-    </div>
-    <button onclick="alert('Всё работает! Теперь можно добавлять календарь и фото')">Проверить</button>
-    <div class="card">
-        <p>📅 Календарь | 📸 Фото упражнений | ➕ Свои упражнения</p>
-        <small>— всё это будет добавлено дальше —</small>
-    </div>
-    <script>
-        console.log("Приложение запущено");
-    </script>
+<div class="app-container" id="appRoot"></div>
+<div class="bottom-nav" id="bottomNav">
+    <button class="nav-btn" data-tab="training"><span class="nav-icon">🏋️</span><span>Тренировка</span></button>
+    <button class="nav-btn" data-tab="calendar"><span class="nav-icon">📅</span><span>Календарь</span></button>
+    <button class="nav-btn" data-tab="food"><span class="nav-icon">🥗</span><span>Питание</span></button>
+    <button class="nav-btn" data-tab="exercises"><span class="nav-icon">📝</span><span>Упражнения</span></button>
+    <button class="nav-btn" data-tab="progress"><span class="nav-icon">📈</span><span>Прогресс</span></button>
+    <button class="nav-btn" data-tab="settings"><span class="nav-icon">⚙️</span><span>Настройки</span></button>
+</div>
+<script>
+    (function() {
+        // ОСНОВНЫЕ ДАННЫЕ
+        let sessionData = JSON.parse(localStorage.getItem("gym_session") || '{"workouts":{},"historyMax":{},"workoutDates":[]}');
+        let customExercises = JSON.parse(localStorage.getItem("custom_exercises") || '[]');
+        let exercisePhotos = JSON.parse(localStorage.getItem("exercise_photos") || '{}');
+        
+        function saveSession() { localStorage.setItem("gym_session", JSON.stringify(sessionData)); }
+        function saveCustom() { localStorage.setItem("custom_exercises", JSON.stringify(customExercises)); }
+        function savePhotos() { localStorage.setItem("exercise_photos", JSON.stringify(exercisePhotos)); }
+        
+        // Тренировки по умолчанию
+        const defaultExercises = {
+            "Жим гантелей": { sets: 4, targetReps: "8-12", restSec: 120 },
+            "Тяга штанги": { sets: 4, targetReps: "8-10", restSec: 120 },
+            "Приседания": { sets: 4, targetReps: "8-12", restSec: 150 },
+            "Жим ногами": { sets: 4, targetReps: "10-12", restSec: 150 },
+            "Сгибание рук": { sets: 3, targetReps: "10-12", restSec: 90 }
+        };
+        
+        let allExercises = { ...defaultExercises };
+        customExercises.forEach(ex => { allExercises[ex.name] = { sets: ex.sets, targetReps: ex.targetReps, restSec: ex.restSec, isCustom: true }; });
+        
+        let currentTab = "training";
+        let activeDay = new Date().toISOString().split('T')[0];
+        let currentExerciseName = Object.keys(allExercises)[0];
+        let timerInterval = null, timerRemaining = 0, activeTimerInfo = null;
+        
+        // Инициализация тренировки на дату
+        function initWorkout(day) {
+            if(!sessionData.workouts[day]) sessionData.workouts[day] = {};
+            if(!sessionData.workoutDates.includes(day) && day === new Date().toISOString().split('T')[0]) {
+                sessionData.workoutDates.push(day);
+                saveSession();
+            }
+        }
+        
+        function renderCurrentView() {
+            if(currentTab === "training") renderTraining();
+            else if(currentTab === "calendar") renderCalendar();
+            else if(currentTab === "food") renderFood();
+            else if(currentTab === "exercises") renderExercises();
+            else if(currentTab === "progress") renderProgress();
+            else renderSettings();
+            document.querySelectorAll(".nav-btn").forEach(btn => {
+                if(btn.dataset.tab === currentTab) btn.classList.add("active");
+                else btn.classList.remove("active");
+            });
+        }
+        
+        function renderTraining() {
+            initWorkout(activeDay);
+            let ex = allExercises[currentExerciseName];
+            if(!ex) { currentExerciseName = Object.keys(allExercises)[0]; ex = allExercises[currentExerciseName]; }
+            let setsData = sessionData.workouts[activeDay][currentExerciseName] || Array(ex.sets).fill().map(() => ({ weight: "", reps: "" }));
+            
+            let timerHtml = "";
+            if(timerInterval && activeTimerInfo && activeTimerInfo.exName === currentExerciseName) {
+                let m = Math.floor(timerRemaining/60), s = timerRemaining%60;
+                timerHtml = `<div class="card" style="background:#1f2a1f;text-align:center"><div style="font-size:24px">⏱️ Отдых: ${m}:${s<10?'0'+s:s}</div><button class="timer-btn" id="stopTimerBtn">Остановить</button></div>`;
+            }
+            
+            let photoHtml = "";
+            if(exercisePhotos[currentExerciseName]) {
+                photoHtml = `<div><img src="${exercisePhotos[currentExerciseName]}" class="photo-preview" onclick="document.getElementById('photoInput').click()"></div>`;
+            }
+            
+            let setsHtml = "";
+            for(let i=0; i<ex.sets; i++) {
+                let s = setsData[i] || { weight: "", reps: "" };
+                setsHtml += `<div class="set-row">
+                    <span class="set-number">Подход ${i+1}</span>
+                    <div class="input-group"><label>кг</label><input type="number" id="w_${i}" value="${s.weight}" placeholder="0"></div>
+                    <div class="input-group"><label>повт</label><input type="number" id="r_${i}" value="${s.reps}" placeholder="0"></div>
+                    <button class="timer-btn" data-setidx="${i}">⏱️ ${Math.floor(ex.restSec/60)}:${(ex.restSec%60).toString().padStart(2,'0')}</button>
+                </div>`;
+            }
+            
+            let exerciseSelect = `<select id="exerciseSelect" style="background:#1a1e28;color:white;border-radius:40px;padding:8px;margin-bottom:12px;width:100%">`;
+            Object.keys(allExercises).forEach(name => {
+                exerciseSelect += `<option value="${name}" ${name === currentExerciseName ? 'selected' : ''}>${name} ${allExercises[name].isCustom ? '✏️' : ''}</option>`;
+            });
+            exerciseSelect += `</select>`;
+            
+            let html = `<div class="card">
+                <div class="flex-between"><span class="section-title">💪 Тренировка ${activeDay}</span></div>
+                ${exerciseSelect}
+                <input type="file" id="photoInput" accept="image/*" style="display:none">
+                <div class="exercise-card">
+                    <div class="exercise-name">
+                        ${currentExerciseName}
+                        <button class="timer-btn" id="addPhotoBtn">📸 Фото</button>
+                    </div>
+                    ${photoHtml}
+                    ${setsHtml}
+                    ${timerHtml}
+                    <button class="btn-primary" id="completeExBtn">✓ Сохранить упражнение</button>
+                </div>
+                <div style="display:flex; gap:12px; margin-top:12px;">
+                    <button class="timer-btn" id="prevEx">◀ Предыдущее</button>
+                    <button class="timer-btn" id="nextEx">Следующее ▶</button>
+                </div>
+            </div>`;
+            
+            document.getElementById("appRoot").innerHTML = html;
+            
+            let exerciseNames = Object.keys(allExercises);
+            let currentIdx = exerciseNames.indexOf(currentExerciseName);
+            
+            document.getElementById("exerciseSelect").onchange = (e) => { currentExerciseName = e.target.value; renderCurrentView(); };
+            document.getElementById("addPhotoBtn").onclick = () => document.getElementById("photoInput").click();
+            document.getElementById("photoInput").onchange = (e) => {
+                let file = e.target.files[0];
+                if(file) {
+                    let reader = new FileReader();
+                    reader.onload = function(ev) {
+                        exercisePhotos[currentExerciseName] = ev.target.result;
+                        savePhotos();
+                        renderCurrentView();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            
+            for(let i=0; i<ex.sets; i++) {
+                let wInp = document.getElementById(`w_${i}`), rInp = document.getElementById(`r_${i}`);
+                if(wInp) wInp.onchange = (e) => updateSet(i, e.target.value, rInp?.value || "");
+                if(rInp) rInp.onchange = (e) => updateSet(i, wInp?.value || "", e.target.value);
+                let btn = document.querySelector(`.timer-btn[data-setidx="${i}"]`);
+                if(btn) btn.onclick = () => startTimer(ex.restSec, currentExerciseName, i);
+            }
+            document.getElementById("prevEx").onclick = () => {
+                let idx = exerciseNames.indexOf(currentExerciseName);
+                if(idx > 0) { currentExerciseName = exerciseNames[idx-1]; stopTimer(); renderCurrentView(); }
+            };
+            document.getElementById("nextEx").onclick = () => {
+                let idx = exerciseNames.indexOf(currentExerciseName);
+                if(idx+1 < exerciseNames.length) { currentExerciseName = exerciseNames[idx+1]; stopTimer(); renderCurrentView(); }
+                else alert("Тренировка на сегодня сохранена! 🎉");
+            };
+            document.getElementById("completeExBtn").onclick = () => {
+                let allFilled = true;
+                for(let i=0;i<ex.sets;i++){ let d = sessionData.workouts[activeDay][currentExerciseName]?.[i]; if(!d || !d.weight || !d.reps) allFilled=false; }
+                if(!allFilled) alert("Заполните вес и повторения для всех подходов!");
+                else {
+                    let idx = exerciseNames.indexOf(currentExerciseName);
+                    if(idx+1 < exerciseNames.length) { currentExerciseName = exerciseNames[idx+1]; stopTimer(); renderCurrentView(); }
+                    else alert("✅ Тренировка завершена!");
+                }
+            };
+            if(document.getElementById("stopTimerBtn")) document.getElementById("stopTimerBtn").onclick = () => stopTimer();
+            
+            function updateSet(setIdx, w, r) {
+                if(!sessionData.workouts[activeDay][currentExerciseName]) sessionData.workouts[activeDay][currentExerciseName] = [];
+                sessionData.workouts[activeDay][currentExerciseName][setIdx] = { weight: w, reps: r };
+                saveSession();
+                let vol = parseFloat(w) * parseFloat(r);
+                if(!isNaN(vol) && vol > (sessionData.historyMax[currentExerciseName]||0)) {
+                    sessionData.historyMax[currentExerciseName] = vol;
+                    saveSession();
+                }
+                renderCurrentView();
+            }
+        }
+        
+        function startTimer(sec, exName, setIdx) {
+            if(timerInterval) clearInterval(timerInterval);
+            timerRemaining = sec;
+            activeTimerInfo = { exName, setIdx };
+            timerInterval = setInterval(() => {
+                if(timerRemaining <= 1) { stopTimer(); alert("⏰ Отдых закончен!"); renderCurrentView(); }
+                else { timerRemaining--; renderCurrentView(); }
+            }, 1000);
+            renderCurrentView();
+        }
+        function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=null; timerRemaining=0; activeTimerInfo=null; }
+        
+        function renderCalendar() {
+            let today = new Date();
+            let year = today.getFullYear();
+            let month = today.getMonth();
+            let firstDay = new Date(year, month, 1);
+            let startOffset = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+            let daysInMonth = new Date(year, month+1, 0).getDate();
+            let days = [];
+            for(let i=0; i<startOffset; i++) days.push(null);
+            for(let i=1; i<=daysInMonth; i++) days.push(i);
+            let calendarHtml = `<div class="calendar">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>`<div style="color:#ffb347">${d}</div>`).join('')}`;
+            days.forEach(day => {
+                if(day === null) calendarHtml += `<div></div>`;
+                else {
+                    let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                    let hasWorkout = sessionData.workouts[dateStr] && Object.keys(sessionData.workouts[dateStr]).length > 0;
+                    calendarHtml += `<div class="calendar-day ${hasWorkout ? 'workout' : ''}" onclick="location.href='#'; alert('Тренировка за ${dateStr}: ${hasWorkout ? "есть записи" : "нет записей"}')">${day}</div>`;
+                }
+            });
+            calendarHtml += `</div><button class="btn-primary" id="goTodayBtn" style="margin-top:16px;">📅 Сегодняшняя тренировка</button>`;
+            let html = `<div class="card"><div class="section-title">📅 Календарь тренировок</div>${calendarHtml}</div><div class="card"><p>⭐ Жёлтые дни — тренировка выполнена</p></div>`;
+            document.getElementById("appRoot").innerHTML = html;
+            document.getElementById("goTodayBtn")?.addEventListener("click", () => { activeDay = new Date().toISOString().split('T')[0]; currentTab = "training"; renderCurrentView(); });
+        }
+        
+        function renderExercises() {
+            let exercisesList = Object.keys(allExercises).map(name => `<div class="flex-between" style="margin:8px 0"><span>${name} (${allExercises[name].sets}×${allExercises[name].targetReps})</span><button class="timer-btn" onclick="deleteExercise('${name}')">🗑️</button></div>`).join('');
+            let html = `<div class="card"><div class="section-title">📝 Мои упражнения</div>${exercisesList}<button class="btn-primary" id="addExBtn">➕ Добавить упражнение</button></div>`;
+            document.getElementById("appRoot").innerHTML = html;
+            document.getElementById("addExBtn").onclick = () => {
+                let name = prompt("Название упражнения:");
+                let sets = parseInt(prompt("Количество подходов:", "3"));
+                let targetReps = prompt("Диапазон повторений (например 8-12):", "8-12");
+                let restSec = parseInt(prompt("Отдых в секундах:", "90"));
+                if(name && sets && targetReps && restSec) {
+                    customExercises.push({ name, sets, targetReps, restSec });
+                    saveCustom();
+                    allExercises[name] = { sets, targetReps, restSec, isCustom: true };
+                    renderCurrentView();
+                }
+            };
+            window.deleteExercise = function(name) {
+                if(confirm(`Удалить упражнение "${name}"?`)) {
+                    delete allExercises[name];
+                    customExercises = customExercises.filter(e => e.name !== name);
+                    saveCustom();
+                    if(currentExerciseName === name) currentExerciseName = Object.keys(allExercises)[0];
+                    renderCurrentView();
+                }
+            };
+        }
+        
+        // Простое питание
+        let foodLog = JSON.parse(localStorage.getItem("food_log") || '{"meals":{"Завтрак":[],"Обед":[],"Ужин":[]}}');
+        function renderFood() {
+            let total = { p:0,f:0,c:0,kcal:0 };
+            for(let m in foodLog.meals) foodLog.meals[m].forEach(i => { total.p+=i.p; total.f+=i.f; total.c+=i.c; total.kcal+=i.kcal; });
+            let html = `<div class="card"><div class="section-title">🥗 БЖУ</div><div>🥩 ${total.p.toFixed(1)}г 🧈 ${total.f.toFixed(1)}г 🍚 ${total.c.toFixed(1)}г 🔥 ${total.kcal.toFixed(0)} ккал</div></div>
+            <div class="card"><button class="btn-primary" id="addFoodBtn">+ Добавить приём пищи</button></div>`;
+            document.getElementById("appRoot").innerHTML = html;
+            document.getElementById("addFoodBtn").onclick = () => {
+                let name = prompt("Продукт (курица, рис, гречка, яйцо, творог):");
+                let grams = parseFloat(prompt("Граммы:", "100"));
+                if(name && grams) {
+                    let fakeNutr = { p:20, f:10, c:30, kcal:Math.round(grams*3) };
+                    foodLog.meals["Завтрак"].push({ name, qty:grams, p:fakeNutr.p, f:fakeNutr.f, c:fakeNutr.c, kcal:fakeNutr.kcal });
+                    localStorage.setItem("food_log", JSON.stringify(foodLog));
+                    renderFood();
+                }
+            };
+        }
+        
+        function renderProgress() {
+            let html = `<div class="card"><div class="section-title">📊 Лучшие результаты</div>`;
+            for(let [k,v] of Object.entries(sessionData.historyMax)) html += `<div class="flex-between"><span>${k}</span><strong>${Math.round(v)} кг×повт</strong></div>`;
+            html += `</div><div class="card"><p>🏆 Дней с тренировками: ${sessionData.workoutDates?.length || 0}</p></div>`;
+            document.getElementById("appRoot").innerHTML = html;
+        }
+        
+        function renderSettings() {
+            let html = `<div class="card"><div class="section-title">⚙️ Настройки</div>
+            <button class="timer-btn" id="resetAll" style="background:#4a1e2c;width:100%">Сбросить ВСЕ данные</button>
+            <p style="margin-top:16px;">📸 Фото упражнений сохраняются в телефоне.<br>➕ Свои упражнения можно добавлять и удалять.</p>
+            </div>`;
+            document.getElementById("appRoot").innerHTML = html;
+            document.getElementById("resetAll")?.addEventListener("click", () => {
+                if(confirm("Удалить всё?")) { localStorage.clear(); location.reload(); }
+            });
+        }
+        
+        document.getElementById("bottomNav").addEventListener("click", (e) => {
+            let btn = e.target.closest(".nav-btn");
+            if(btn && btn.dataset.tab) { currentTab = btn.dataset.tab; stopTimer(); renderCurrentView(); }
+        });
+        renderCurrentView();
+    })();
+</script>
 </body>
 </html>

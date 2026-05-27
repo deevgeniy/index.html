@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>GYM PRO — Полная версия</title>
+    <meta name="theme-color" content="#0a0c0f">
+    <title>GYM LOG PRO — Дневник тренировок</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0c0f; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #eef2ff; padding-bottom: 80px; }
@@ -27,19 +28,21 @@
         button:active { transform: scale(0.97); }
         input[type=number]::-webkit-inner-spin-button { display: none; }
         select { background: #1a1e28; color: white; border-radius: 40px; padding: 8px; border: 1px solid #2a2f38; }
-        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-top: 12px; }
-        .calendar-day { background: #1a1e28; padding: 8px; border-radius: 30px; cursor: pointer; font-size: 12px; }
+        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-top: 16px; }
+        .calendar-weekday { color: #ffb347; font-weight: 600; padding: 8px; }
+        .calendar-day { background: #1a1e28; padding: 10px; border-radius: 30px; cursor: pointer; }
         .calendar-day.workout { background: #ffb347; color: #0a0c0f; font-weight: bold; }
+        .calendar-day.empty { background: none; cursor: default; }
+        .calendar-day.today { border: 2px solid #ffb347; }
         .photo-item { margin-bottom: 16px; background: #1a1e28; border-radius: 20px; padding: 12px; }
-        .photo-img { width: 100%; border-radius: 16px; margin-top: 8px; }
+        .photo-img { width: 100%; border-radius: 16px; margin-top: 8px; cursor: pointer; }
         .meal-row { display: flex; justify-content: space-between; align-items: center; margin: 8px 0; padding: 8px; background: #0f1219; border-radius: 16px; }
-        .delete-btn { background: none; border: none; color: #ff8866; font-size: 18px; cursor: pointer; }
     </style>
 </head>
 <body>
 <div class="app-container" id="appRoot"></div>
 <div class="bottom-nav" id="bottomNav">
-    <button class="nav-btn" data-tab="training"><span class="nav-icon">🏋️</span><span>Тренировка</span></button>
+    <button class="nav-btn active" data-tab="training"><span class="nav-icon">🏋️</span><span>Тренировка</span></button>
     <button class="nav-btn" data-tab="food"><span class="nav-icon">🥗</span><span>Питание</span></button>
     <button class="nav-btn" data-tab="progress"><span class="nav-icon">📈</span><span>Прогресс</span></button>
     <button class="nav-btn" data-tab="calendar"><span class="nav-icon">📅</span><span>Календарь</span></button>
@@ -48,8 +51,7 @@
     <button class="nav-btn" data-tab="settings"><span class="nav-icon">⚙️</span><span>Настройки</span></button>
 </div>
 <script>
-(function() {
-    // ==================== ПРОГРАММА ТРЕНИРОВОК (3 дня из PDF) ====================
+    // ==================== ПРОГРАММА ТРЕНИРОВОК ====================
     const workoutDays = {
         1: { name: "День 1. Жимовый (грудь, плечи, трицепс)", exercises: [
             { name: "Жим в рычажном тренажере", sets: 4, restSec: 150, key: "hammer" },
@@ -81,7 +83,6 @@
         ]}
     };
     
-    // БАЗА ПРОДУКТОВ ДЛЯ БЖУ
     const foodDB = {
         "куриное филе": {p:23, f:1.8, c:0, kcal:110}, "творог 5%": {p:17, f:5, c:2.5, kcal:121},
         "рис белый": {p:7, f:0.6, c:78, kcal:345}, "гречка": {p:12, f:3, c:62, kcal:313},
@@ -89,7 +90,6 @@
         "яйцо": {p:12.5, f:11, c:0.7, kcal:155}, "протеин": {p:75, f:5, c:8, kcal:380}
     };
     
-    // ДАННЫЕ
     let currentTab = "training";
     let activeDay = 1;
     let currentExIdx = 0;
@@ -112,7 +112,7 @@
     function stopTimer() {
         if (timerInterval) clearInterval(timerInterval);
         timerInterval = null; timerRemaining = 0; timerActiveEx = null;
-        render();
+        if (currentTab === "training") render();
     }
     
     function startTimer(sec, exKey) {
@@ -120,10 +120,10 @@
         timerRemaining = sec;
         timerActiveEx = exKey;
         timerInterval = setInterval(() => {
-            if (timerRemaining <= 1) { stopTimer(); alert("⏰ Отдых закончен!"); render(); }
-            else { timerRemaining--; render(); }
+            if (timerRemaining <= 1) { stopTimer(); alert("⏰ Отдых закончен!"); if (currentTab === "training") render(); }
+            else { timerRemaining--; if (currentTab === "training") render(); }
         }, 1000);
-        render();
+        if (currentTab === "training") render();
     }
     
     function updateSet(day, exKey, setIdx, weight, reps) {
@@ -138,7 +138,7 @@
             sessionData.historyMax[exKey] = vol;
         }
         saveAll();
-        render();
+        if (currentTab === "training") render();
     }
     
     function markWorkoutDay() {
@@ -173,7 +173,7 @@
         let timerHtml = "";
         if (timerInterval && timerActiveEx === ex.key) {
             let m = Math.floor(timerRemaining/60), s = timerRemaining%60;
-            timerHtml = `<div class="card" style="background:#1f2a1f;text-align:center"><div>⏱️ Отдых: ${m}:${s<10?'0'+s:s}</div><button class="timer-btn" onclick="stopTimer()">Остановить</button></div>`;
+            timerHtml = `<div class="card" style="background:#1f2a1f;text-align:center"><div>⏱️ Отдых: ${m}:${s<10?'0'+s:s}</div><button class="timer-btn" onclick="window.stopTimer()">Остановить</button></div>`;
         }
         
         let setsHtml = "";
@@ -183,7 +183,7 @@
                 <span class="set-number">Подход ${i+1}</span>
                 <div class="input-group"><label>кг</label><input type="number" id="w_${i}" value="${s.weight}" placeholder="0"></div>
                 <div class="input-group"><label>повт</label><input type="number" id="r_${i}" value="${s.reps}" placeholder="0"></div>
-                <button class="timer-btn" onclick="startTimer(${ex.restSec}, '${ex.key}')">⏱️ ${Math.floor(ex.restSec/60)}:${(ex.restSec%60).toString().padStart(2,'0')}</button>
+                <button class="timer-btn" onclick="window.startTimer(${ex.restSec}, '${ex.key}')">⏱️ ${Math.floor(ex.restSec/60)}:${(ex.restSec%60).toString().padStart(2,'0')}</button>
             </div>`;
         }
         
@@ -205,7 +205,7 @@
         document.getElementById("appRoot").innerHTML = html;
         
         document.getElementById("daySelect").value = activeDay;
-        document.getElementById("daySelect").onchange = (e) => { activeDay = parseInt(e.target.value); currentExIdx = 0; render(); };
+        document.getElementById("daySelect").onchange = (e) => { activeDay = parseInt(e.target.value); currentExIdx = 0; stopTimer(); render(); };
         
         for (let i=0; i<ex.sets; i++) {
             let wInp = document.getElementById(`w_${i}`), rInp = document.getElementById(`r_${i}`);
@@ -238,14 +238,13 @@
         let mealsHtml = "";
         for (let meal of ["Завтрак","Обед","Ужин"]) {
             let items = foodLog.meals[meal];
-            let list = items.map((it, idx) => `<div class="meal-row"><span>${it.name} ${it.qty}г</span><span>${it.p}г/${it.f}г/${it.c}г | ${it.kcal}ккал</span><button class="delete-btn" onclick="window.deleteFoodItem('${meal}', ${idx})">✖</button></div>`).join("");
+            let list = items.map((it, idx) => `<div class="meal-row"><span>${it.name} ${it.qty}г</span><span>${it.p}г/${it.f}г/${it.c}г | ${it.kcal}ккал</span><button class="timer-btn" style="background:#4a1e2c; padding:4px 12px;" onclick="window.deleteFoodItem('${meal}', ${idx})">✖</button></div>`).join("");
             mealsHtml += `<div class="food-log"><div class="flex-between"><strong>${meal}</strong><button class="timer-btn" onclick="window.addFoodToMeal('${meal}')">+ Добавить</button></div>${list || "<div style='color:#6c7a8c;'>— нет записей —</div>"}</div>`;
         }
         let html = `<div class="card"><div class="section-title">🍽️ БЖУ за сегодня</div><div class="flex-between" style="background:#1a1e28;border-radius:40px;padding:12px;"><span>🥩 ${total.p.toFixed(1)}г</span><span>🧈 ${total.f.toFixed(1)}г</span><span>🍚 ${total.c.toFixed(1)}г</span><span>🔥 ${total.kcal.toFixed(0)}</span></div></div><div class="card">${mealsHtml}</div><div class="card"><div class="section-title">📦 Быстрые продукты</div><div id="quickFoods" style="display:flex;flex-wrap:wrap;gap:8px;"></div></div>`;
         document.getElementById("appRoot").innerHTML = html;
         
-        let quick = Object.keys(foodDB);
-        quick.forEach(f => {
+        Object.keys(foodDB).forEach(f => {
             let btn = document.createElement("button");
             btn.innerText = f; btn.className = "timer-btn";
             btn.onclick = () => { let g = prompt("Граммы:", "100"); if(g) addFoodToMealDirect("Завтрак", f, parseFloat(g)); };
@@ -286,28 +285,61 @@
     
     function renderCalendar() {
         let today = new Date();
-        let year = today.getFullYear(), month = today.getMonth();
+        let year = today.getFullYear();
+        let month = today.getMonth();
+        let weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
         let firstDay = new Date(year, month, 1);
         let startOffset = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-        let daysInMonth = new Date(year, month+1, 0).getDate();
+        let daysInMonth = new Date(year, month + 1, 0).getDate();
         let days = [];
-        for (let i=0; i<startOffset; i++) days.push(null);
-        for (let i=1; i<=daysInMonth; i++) days.push(i);
+        for (let i = 0; i < startOffset; i++) days.push(null);
+        for (let i = 1; i <= daysInMonth; i++) days.push(i);
         
-        let calHtml = `<div class="calendar">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>`<div style="color:#ffb347">${d}</div>`).join('')}`;
+        let calendarHtml = `<div class="calendar">`;
+        weekdays.forEach(day => { calendarHtml += `<div class="calendar-weekday">${day}</div>`; });
+        
         days.forEach(day => {
-            if (!day) calHtml += `<div></div>`;
-            else {
-                let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-                let hasWorkout = sessionData.workoutDates.includes(dateStr);
-                calHtml += `<div class="calendar-day ${hasWorkout ? 'workout' : ''}" onclick="alert('${dateStr}: ${hasWorkout ? "✅ Тренировка была" : "❌ Нет тренировки"}')">${day}</div>`;
+            if (day === null) {
+                calendarHtml += `<div class="calendar-day empty"></div>`;
+            } else {
+                let dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                let hasWorkout = sessionData.workoutDates && sessionData.workoutDates.includes(dateStr);
+                let isToday = (today.getDate() === day && today.getMonth() === month && today.getFullYear() === year);
+                let todayClass = isToday ? 'today' : '';
+                calendarHtml += `<div class="calendar-day ${hasWorkout ? 'workout' : ''} ${todayClass}" onclick="window.selectDate('${dateStr}')">${day}</div>`;
             }
         });
-        calHtml += `</div><button class="btn-primary" id="goToday" style="margin-top:16px;">🏋️ Сегодняшняя тренировка</button>`;
-        let html = `<div class="card"><div class="section-title">📅 Календарь</div>${calHtml}</div>`;
+        calendarHtml += `</div>`;
+        
+        let totalWorkouts = sessionData.workoutDates ? sessionData.workoutDates.length : 0;
+        
+        let html = `<div class="card">
+            <div class="section-title">📅 Календарь тренировок</div>
+            <div style="text-align: center; margin-bottom: 16px;">
+                <span style="background:#ffb34720; padding: 6px 12px; border-radius: 40px;">
+                    📆 ${String(today.getDate()).padStart(2,'0')}.${String(month+1).padStart(2,'0')}.${year}
+                </span>
+            </div>
+            ${calendarHtml}
+            <div style="margin-top: 16px; display: flex; justify-content: space-between;">
+                <span>🏆 Всего тренировок: <strong>${totalWorkouts}</strong></span>
+                <span>⭐ Жёлтые дни — тренировка выполнена</span>
+            </div>
+            <button class="btn-primary" id="goToTodayWorkout" style="margin-top: 16px;">🏋️ Перейти к сегодняшней тренировке</button>
+        </div>`;
         document.getElementById("appRoot").innerHTML = html;
-        document.getElementById("goToday")?.addEventListener("click", () => { currentTab = "training"; render(); });
+        
+        document.getElementById("goToTodayWorkout")?.addEventListener("click", () => {
+            currentTab = "training";
+            render();
+        });
     }
+    
+    window.selectDate = function(dateStr) {
+        let hasWorkout = sessionData.workoutDates && sessionData.workoutDates.includes(dateStr);
+        if(hasWorkout) alert(`✅ Тренировка за ${dateStr} выполнена!`);
+        else alert(`❌ Тренировка за ${dateStr} не выполнялась.`);
+    };
     
     function renderGallery() {
         let galleryHtml = `<div class="card"><div class="section-title">📸 Фото прогресса</div><button class="btn-primary" id="addPhotoBtn">➕ Добавить фото</button></div>`;
@@ -384,7 +416,6 @@
     });
     
     render();
-})();
 </script>
 </body>
 </html>

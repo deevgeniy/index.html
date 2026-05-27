@@ -285,23 +285,69 @@
     }
     
     function renderCalendar() {
-        let today = new Date();
-        let year = today.getFullYear(), month = today.getMonth();
-        let firstDay = new Date(year, month, 1);
-        let startOffset = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-        let daysInMonth = new Date(year, month+1, 0).getDate();
-        let days = [];
-        for (let i=0; i<startOffset; i++) days.push(null);
-        for (let i=1; i<=daysInMonth; i++) days.push(i);
-        
-        let calHtml = `<div class="calendar">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>`<div style="color:#ffb347">${d}</div>`).join('')}`;
-        days.forEach(day => {
-            if (!day) calHtml += `<div></div>`;
-            else {
-                let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-                let hasWorkout = sessionData.workoutDates.includes(dateStr);
-                calHtml += `<div class="calendar-day ${hasWorkout ? 'workout' : ''}" onclick="alert('${dateStr}: ${hasWorkout ? "✅ Тренировка была" : "❌ Нет тренировки"}')">${day}</div>`;
-            }
+    let today = new Date();
+    let year = today.getFullYear();
+    let month = today.getMonth();
+    let weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    let firstDay = new Date(year, month, 1);
+    let startOffset = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+    let daysInMonth = new Date(year, month + 1, 0).getDate();
+    let days = [];
+    for (let i = 0; i < startOffset; i++) days.push(null);
+    for (let i = 1; i <= daysInMonth; i++) days.push(i);
+    
+    let calendarHtml = `<div class="calendar">`;
+    weekdays.forEach(day => { calendarHtml += `<div class="calendar-weekday" style="color:#ffb347; text-align:center; padding:8px;">${day}</div>`; });
+    
+    days.forEach(day => {
+        if (day === null) {
+            calendarHtml += `<div class="calendar-day empty" style="background:none;"></div>`;
+        } else {
+            let dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            let hasWorkout = sessionData.workoutDates && sessionData.workoutDates.includes(dateStr);
+            let isToday = (today.getDate() === day && today.getMonth() === month && today.getFullYear() === year);
+            let todayClass = isToday ? 'today' : '';
+            calendarHtml += `<div class="calendar-day ${hasWorkout ? 'workout' : ''} ${todayClass}" 
+                style="background:${hasWorkout ? '#ffb347' : '#1a1e28'}; color:${hasWorkout ? '#0a0c0f' : 'white'}; 
+                border-radius:30px; padding:10px; text-align:center; cursor:pointer; ${isToday ? 'border:2px solid #ffb347;' : ''}"
+                onclick="window.selectDateFn('${dateStr}')">${day}</div>`;
+        }
+    });
+    calendarHtml += `</div>`;
+    
+    let totalWorkouts = sessionData.workoutDates ? sessionData.workoutDates.length : 0;
+    
+    let html = `<div class="card">
+        <div class="section-title">📅 Календарь тренировок</div>
+        <div style="text-align: center; margin-bottom: 16px;">
+            <span style="background:#ffb34720; padding: 6px 12px; border-radius: 40px;">
+                📆 ${String(today.getDate()).padStart(2,'0')}.${String(month+1).padStart(2,'0')}.${year}
+            </span>
+        </div>
+        ${calendarHtml}
+        <div style="margin-top: 16px; display: flex; justify-content: space-between;">
+            <span>🏆 Всего тренировок: <strong>${totalWorkouts}</strong></span>
+            <span>⭐ Жёлтые дни — тренировка выполнена</span>
+        </div>
+        <button class="btn-primary" id="goToTodayWorkout" style="margin-top: 16px;">🏋️ Перейти к сегодняшней тренировке</button>
+    </div>`;
+    
+    document.getElementById("appRoot").innerHTML = html;
+    
+    document.getElementById("goToTodayWorkout")?.addEventListener("click", () => {
+        currentTab = "training";
+        render();
+    });
+    
+    window.selectDateFn = function(dateStr) {
+        let hasWorkout = sessionData.workoutDates && sessionData.workoutDates.includes(dateStr);
+        if(hasWorkout) {
+            alert(`✅ Тренировка за ${dateStr} выполнена!`);
+        } else {
+            alert(`❌ Тренировка за ${dateStr} не выполнялась.\nВы можете потренироваться сегодня!`);
+        }
+    };
+}
         });
         calHtml += `</div><button class="btn-primary" id="goToday" style="margin-top:16px;">🏋️ Сегодняшняя тренировка</button>`;
         let html = `<div class="card"><div class="section-title">📅 Календарь</div>${calHtml}</div>`;

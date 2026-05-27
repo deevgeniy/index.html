@@ -63,6 +63,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     val allSetLogs: StateFlow<List<ExerciseSetLog>>
     val allWeightLogs: StateFlow<List<WeightLog>>
     val allExerciseInfo: StateFlow<List<ExerciseInfo>>
+    val allProgressPhotos: StateFlow<List<ProgressPhoto>>
     
     // Active date string: YYYY-MM-DD
     private val _selectedDate = MutableStateFlow("")
@@ -226,6 +227,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
         allExerciseInfo = repository.allExerciseInfo
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+        allProgressPhotos = repository.allProgressPhotos
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
         todayNutrition = _selectedDate.flatMapLatest { date ->
@@ -727,6 +731,33 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 )
             }
+        }
+    }
+
+    // --- Progress Photo Operations ---
+    fun addProgressPhoto(uri: String, dateString: String, weight: Double, note: String) {
+        viewModelScope.launch {
+            val dateMillis = try {
+                val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                sdf.parse(dateString)?.time ?: System.currentTimeMillis()
+            } catch (e: Exception) {
+                System.currentTimeMillis()
+            }
+            repository.insertProgressPhoto(
+                ProgressPhoto(
+                    dateString = dateString,
+                    dateMillis = dateMillis,
+                    photoUri = uri,
+                    weight = weight,
+                    note = note.trim()
+                )
+            )
+        }
+    }
+
+    fun deleteProgressPhoto(photo: ProgressPhoto) {
+        viewModelScope.launch {
+            repository.deleteProgressPhoto(photo)
         }
     }
 }

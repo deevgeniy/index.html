@@ -58,6 +58,17 @@ data class WeightLog(
     val weight: Double
 )
 
+// 5b. Progress Photo Entity for photo comparison
+@Entity(tableName = "progress_photos")
+data class ProgressPhoto(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val dateString: String, // "yyyy-MM-dd"
+    val dateMillis: Long,
+    val photoUri: String,
+    val weight: Double = 0.0,
+    val note: String = ""
+)
+
 // 6. Exercise Details Library Entity
 @Entity(tableName = "exercise_info")
 data class ExerciseInfo(
@@ -160,11 +171,31 @@ interface ExerciseInfoDao {
     suspend fun deleteExercise(name: String)
 }
 
+@Dao
+interface ProgressPhotoDao {
+    @Query("SELECT * FROM progress_photos ORDER BY dateMillis DESC")
+    fun getAllProgressPhotosFlow(): Flow<List<ProgressPhoto>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertProgressPhoto(photo: ProgressPhoto)
+
+    @Delete
+    suspend fun deleteProgressPhoto(photo: ProgressPhoto)
+}
+
 // --- AppDatabase class ---
 
 @Database(
-    entities = [UserStats::class, WorkoutLog::class, ExerciseSetLog::class, NutritionLog::class, WeightLog::class, ExerciseInfo::class],
-    version = 3,
+    entities = [
+        UserStats::class,
+        WorkoutLog::class,
+        ExerciseSetLog::class,
+        NutritionLog::class,
+        WeightLog::class,
+        ExerciseInfo::class,
+        ProgressPhoto::class
+    ],
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -174,6 +205,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun nutritionLogDao(): NutritionLogDao
     abstract fun weightLogDao(): WeightLogDao
     abstract fun exerciseInfoDao(): ExerciseInfoDao
+    abstract fun progressPhotoDao(): ProgressPhotoDao
 
     companion object {
         @Volatile

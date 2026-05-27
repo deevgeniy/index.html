@@ -8,6 +8,15 @@ class GymRepository(private val database: AppDatabase) {
     val allSetLogs: Flow<List<ExerciseSetLog>> = database.exerciseSetLogDao().getAllSetLogsFlow()
     val allWeightLogs: Flow<List<WeightLog>> = database.weightLogDao().getAllWeightLogsFlow()
     val allExerciseInfo: Flow<List<ExerciseInfo>> = database.exerciseInfoDao().getAllExerciseInfoFlow()
+    val allProgressPhotos: Flow<List<ProgressPhoto>> = database.progressPhotoDao().getAllProgressPhotosFlow()
+
+    suspend fun insertProgressPhoto(photo: ProgressPhoto) {
+        database.progressPhotoDao().insertProgressPhoto(photo)
+    }
+
+    suspend fun deleteProgressPhoto(photo: ProgressPhoto) {
+        database.progressPhotoDao().deleteProgressPhoto(photo)
+    }
 
     suspend fun insertOrUpdateExercise(exercise: ExerciseInfo) {
         database.exerciseInfoDao().insertOrUpdateExercise(exercise)

@@ -48,6 +48,18 @@ val GymGreenAccent = Color(0xFF10B981)  // Smooth Green Success Indicator
 val GymSlateBorder = Color(0xFF27272A)  // Dark Zinc lines
 val GymTextSecondary = Color(0xFFA1A1AA) // Muted slate text
 
+fun isUriReadable(context: android.content.Context, uriString: String?): Boolean {
+    if (uriString.isNullOrBlank()) return false
+    if (!uriString.startsWith("content://")) return true
+    return try {
+        val uri = android.net.Uri.parse(uriString)
+        context.contentResolver.openInputStream(uri)?.use { }
+        true
+    } catch (e: Exception) {
+        false
+    }
+}
+
 fun Modifier.dashedBorder(width: androidx.compose.ui.unit.Dp, color: Color, cornerRadius: androidx.compose.ui.unit.Dp) = drawBehind {
     val stroke = Stroke(
         width = width.toPx(),
@@ -580,7 +592,7 @@ fun ActiveWorkoutScreen(viewModel: GymViewModel, onFinish: (Double, Int) -> Unit
                             .clip(RoundedCornerShape(8.dp))
                             .padding(bottom = 12.dp)
                     ) {
-                        if (currentExerciseInfo?.photoUri != null) {
+                        if (currentExerciseInfo?.photoUri != null && isUriReadable(LocalContext.current, currentExerciseInfo.photoUri)) {
                             AsyncImage(
                                 model = currentExerciseInfo.photoUri,
                                 contentDescription = currentExercise.name,
@@ -2146,6 +2158,556 @@ fun ProgressDashboardScreen(viewModel: GymViewModel) {
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        ProgressPhotosSection(viewModel = viewModel)
+    }
+}
+
+@Composable
+fun ProgressPhotosSection(viewModel: GymViewModel, modifier: Modifier = Modifier) {
+    val progressPhotos by viewModel.allProgressPhotos.collectAsStateWithLifecycle()
+    val userStats by viewModel.userStats.collectAsStateWithLifecycle()
+    
+    var beforePhoto by remember { mutableStateOf<ProgressPhoto?>(null) }
+    var afterPhoto by remember { mutableStateOf<ProgressPhoto?>(null) }
+    var showAddPhotoDialog by remember { mutableStateOf(false) }
+    
+    // Auto-select slots if we only have two photos to begin with
+    LaunchedEffect(progressPhotos) {
+        if (progressPhotos.size >= 2 && beforePhoto == null && afterPhoto == null) {
+            val sorted = progressPhotos.sortedBy { it.dateMillis }
+            beforePhoto = sorted.first()
+            afterPhoto = sorted.last()
+        }
+    }
+
+    Card(
+        colors = CardDefaults.cardColors(containerColor = GymSurface),
+        border = BorderStroke(1.dp, GymSlateBorder),
+        modifier = modifier.fillMaxWidth().padding(bottom = 16.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.PhotoLibrary,
+                        contentDescription = "Фото прогресса",
+                        tint = GymOrangeAccent,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Text(
+                        "Фотографии прогресса",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+                
+                Button(
+                    onClick = { showAddPhotoDialog = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = GymOrangeAccent),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Icon(Icons.Default.AddAPhoto, contentDescription = null, tint = Color.Black, modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Добавить", color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            
+            Text(
+                "Сравнивайте свои фотографии до и после для наглядного отслеживания физической формы.",
+                fontSize = 12.sp,
+                color = GymTextSecondary,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            // Split Comparison workspace
+            if (beforePhoto != null || afterPhoto != null) {
+                Text(
+                    "Инструмент сравнения",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = GymOrangeAccent,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(GymDarkBackground)
+                        .border(1.dp, GymSlateBorder, RoundedCornerShape(12.dp))
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("ДО (BEFORE)", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = GymTextSecondary, modifier = Modifier.padding(bottom = 4.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(160.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(GymSurface)
+                                .border(1.dp, GymSlateBorder, RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (beforePhoto != null) {
+                                AsyncImage(
+                                    model = beforePhoto!!.photoUri,
+                                    contentDescription = "До",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                                IconButton(
+                                    onClick = { beforePhoto = null },
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .size(28.dp)
+                                        .background(Color.Black.copy(alpha = 0.6f), CircleShape)
+                                ) {
+                                    Icon(Icons.Default.Close, contentDescription = "Убрать", tint = Color.White, modifier = Modifier.size(14.dp))
+                                }
+                            } else {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(Icons.Default.Photo, contentDescription = null, tint = GymSlateBorder, modifier = Modifier.size(32.dp))
+                                    Text("Выберите фото", fontSize = 10.sp, color = GymTextSecondary, textAlign = TextAlign.Center)
+                                }
+                            }
+                        }
+                        if (beforePhoto != null) {
+                            Text(beforePhoto!!.dateString, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(top = 4.dp))
+                            if (beforePhoto!!.weight > 0.0) {
+                                Text("${beforePhoto!!.weight} кг", fontSize = 11.sp, color = GymTextSecondary)
+                            }
+                        }
+                    }
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("ПОСЛЕ (AFTER)", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = GymOrangeAccent, modifier = Modifier.padding(bottom = 4.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(160.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(GymSurface)
+                                .border(1.dp, GymSlateBorder, RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (afterPhoto != null) {
+                                AsyncImage(
+                                    model = afterPhoto!!.photoUri,
+                                    contentDescription = "После",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                                IconButton(
+                                    onClick = { afterPhoto = null },
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .size(28.dp)
+                                        .background(Color.Black.copy(alpha = 0.6f), CircleShape)
+                                ) {
+                                    Icon(Icons.Default.Close, contentDescription = "Убрать", tint = Color.White, modifier = Modifier.size(14.dp))
+                                }
+                            } else {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(Icons.Default.Photo, contentDescription = null, tint = GymSlateBorder, modifier = Modifier.size(32.dp))
+                                    Text("Выберите фото", fontSize = 10.sp, color = GymTextSecondary, textAlign = TextAlign.Center)
+                                }
+                            }
+                        }
+                        if (afterPhoto != null) {
+                            Text(afterPhoto!!.dateString, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(top = 4.dp))
+                            if (afterPhoto!!.weight > 0.0) {
+                                Text("${afterPhoto!!.weight} кг", fontSize = 11.sp, color = GymTextSecondary)
+                            }
+                        }
+                    }
+                }
+                
+                if (beforePhoto != null && afterPhoto != null) {
+                    val weDiff = afterPhoto!!.weight - beforePhoto!!.weight
+                    val daDiff = (afterPhoto!!.dateMillis - beforePhoto!!.dateMillis) / (1000 * 60 * 60 * 24)
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp)
+                            .background(GymOrangeAccent.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+                            .padding(10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text("Результат трансформации:", fontSize = 11.sp, color = GymTextSecondary)
+                            Text(
+                                text = "Интервал: ${Math.abs(daDiff)} дней",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                        if (beforePhoto!!.weight > 0 && afterPhoto!!.weight > 0) {
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("Изменение веса:", fontSize = 11.sp, color = GymTextSecondary)
+                                Text(
+                                    text = String.format(Locale.getDefault(), "%+.1f кг", weDiff),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = if (weDiff <= 0) GymGreenAccent else GymOrangeAccent
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            Text(
+                "Ваша галерея и выбор слотов:",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
+
+            if (progressPhotos.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                        .background(GymDarkBackground, RoundedCornerShape(10.dp))
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            "Нет загруженных фотографий формы.",
+                            fontSize = 12.sp,
+                            color = GymTextSecondary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(
+                            onClick = {
+                                viewModel.addProgressPhoto(
+                                    uri = "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=400",
+                                    dateString = "2026-03-01",
+                                    weight = 82.5,
+                                    note = "Начало сушки, замеры утренние"
+                                )
+                                viewModel.addProgressPhoto(
+                                    uri = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&q=80&w=400",
+                                    dateString = "2026-05-25",
+                                    weight = 77.2,
+                                    note = "Форма спустя 12 недель, рельеф проявился"
+                                )
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = GymSlateBorder),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Установить демо-фото за 1 клик", color = Color.White, fontSize = 11.sp)
+                        }
+                    }
+                }
+            } else {
+                val chunks = progressPhotos.chunked(2)
+                chunks.forEach { rowPhotos ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        rowPhotos.forEach { photo ->
+                            val isSelectedBefore = beforePhoto?.id == photo.id
+                            val isSelectedAfter = afterPhoto?.id == photo.id
+                            
+                            Card(
+                                colors = CardDefaults.cardColors(containerColor = GymDarkBackground),
+                                border = BorderStroke(
+                                    width = 1.dp,
+                                    color = if (isSelectedBefore) GymGreenAccent
+                                            else if (isSelectedAfter) GymOrangeAccent
+                                            else GymSlateBorder
+                                ),
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Column {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(130.dp)
+                                            .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
+                                    ) {
+                                        AsyncImage(
+                                            model = photo.photoUri,
+                                            contentDescription = photo.note,
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                        IconButton(
+                                            onClick = {
+                                                if (beforePhoto?.id == photo.id) beforePhoto = null
+                                                if (afterPhoto?.id == photo.id) afterPhoto = null
+                                                viewModel.deleteProgressPhoto(photo)
+                                            },
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .size(24.dp)
+                                                .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                                        ) {
+                                            Icon(Icons.Default.Delete, contentDescription = "Удалить", tint = Color.Red, modifier = Modifier.size(12.dp))
+                                        }
+                                        
+                                        Box(
+                                            modifier = Modifier
+                                                .align(Alignment.BottomStart)
+                                                .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(topEnd = 8.dp))
+                                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                        ) {
+                                            Text(photo.dateString, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                        }
+                                    }
+                                    
+                                    Column(modifier = Modifier.padding(6.dp)) {
+                                        if (photo.weight > 0) {
+                                            Text("Вес: ${photo.weight} кг", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                        }
+                                        if (photo.note.isNotEmpty()) {
+                                            Text(
+                                                text = photo.note,
+                                                fontSize = 10.sp,
+                                                color = GymTextSecondary,
+                                                maxLines = 1,
+                                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                            )
+                                        }
+                                        
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            Button(
+                                                onClick = { beforePhoto = photo },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = if (isSelectedBefore) GymGreenAccent else GymSlateBorder
+                                                ),
+                                                shape = RoundedCornerShape(4.dp),
+                                                modifier = Modifier.weight(1f).height(24.dp),
+                                                contentPadding = PaddingValues(0.dp)
+                                            ) {
+                                                Text("В ДО", color = if (isSelectedBefore) Color.Black else Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                            }
+
+                                            Button(
+                                                onClick = { afterPhoto = photo },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = if (isSelectedAfter) GymOrangeAccent else GymSlateBorder
+                                                ),
+                                                shape = RoundedCornerShape(4.dp),
+                                                modifier = Modifier.weight(1f).height(24.dp),
+                                                contentPadding = PaddingValues(0.dp)
+                                            ) {
+                                                Text("В ПОСЛЕ", color = if (isSelectedAfter) Color.Black else Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (rowPhotos.size < 2) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showAddPhotoDialog) {
+        AddProgressPhotoDialog(
+            userWeight = userStats.weight,
+            onDismiss = { showAddPhotoDialog = false },
+            onSave = { uri, dateStr, weight, noteStr ->
+                viewModel.addProgressPhoto(uri, dateStr, weight, noteStr)
+                showAddPhotoDialog = false
+            }
+        )
+    }
+}
+
+@Composable
+fun AddProgressPhotoDialog(
+    userWeight: Double,
+    onDismiss: () -> Unit,
+    onSave: (uri: String, dateStr: String, weight: Double, note: String) -> Unit
+) {
+    val context = LocalContext.current
+    var photoUri by remember { mutableStateOf<String?>(null) }
+    var weightStr by remember { mutableStateOf(userWeight.toString()) }
+    var note by remember { mutableStateOf("") }
+    
+    val sdf = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+    var dateString by remember { mutableStateOf(sdf.format(Date())) }
+    
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            try {
+                val takeFlags: Int = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                context.contentResolver.takePersistableUriPermission(uri, takeFlags)
+            } catch (e: Exception) {}
+            photoUri = uri.toString()
+        }
+    }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            colors = CardDefaults.cardColors(containerColor = GymSurface),
+            border = BorderStroke(1.dp, GymSlateBorder),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(8.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    "Добавить фото прогресса",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = GymOrangeAccent,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(GymDarkBackground)
+                        .border(1.dp, GymSlateBorder, RoundedCornerShape(8.dp))
+                        .clickable { galleryLauncher.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (photoUri != null) {
+                        AsyncImage(
+                            model = photoUri,
+                            contentDescription = "Выбранный кадр",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(topStart = 8.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text("Изменить", color = Color.White, fontSize = 11.sp)
+                        }
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.AddAPhoto, contentDescription = null, tint = GymOrangeAccent, modifier = Modifier.size(36.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("Выбрать фото из галереи", color = GymTextSecondary, fontSize = 11.sp)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = dateString,
+                    onValueChange = { dateString = it },
+                    label = { Text("Дата (ГГГГ-ММ-ДД)") },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = GymOrangeAccent,
+                        unfocusedBorderColor = GymSlateBorder,
+                        focusedLabelColor = GymOrangeAccent,
+                        unfocusedLabelColor = GymTextSecondary,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
+                    ),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                ) {
+                    OutlinedTextField(
+                        value = weightStr,
+                        onValueChange = { weightStr = it },
+                        label = { Text("Вес на фото (кг)") },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = GymOrangeAccent,
+                            unfocusedBorderColor = GymSlateBorder,
+                            focusedLabelColor = GymOrangeAccent,
+                            unfocusedLabelColor = GymTextSecondary,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        ),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                OutlinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
+                    label = { Text("Заметка / Замеры") },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = GymOrangeAccent,
+                        unfocusedBorderColor = GymSlateBorder,
+                        focusedLabelColor = GymOrangeAccent,
+                        unfocusedLabelColor = GymTextSecondary,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
+                    ),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Отмена", color = GymTextSecondary)
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Button(
+                        onClick = {
+                            if (photoUri != null) {
+                                val finalWeight = weightStr.toDoubleOrNull() ?: userWeight
+                                onSave(photoUri!!, dateString, finalWeight, note)
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = GymOrangeAccent),
+                        enabled = photoUri != null,
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Сохранить", color = Color.Black, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -3146,7 +3708,7 @@ fun ExerciseLibraryItemRow(
                         .height(180.dp)
                         .clip(RoundedCornerShape(12.dp))
                 ) {
-                    if (exercise.photoUri != null) {
+                    if (exercise.photoUri != null && isUriReadable(context, exercise.photoUri)) {
                         AsyncImage(
                             model = exercise.photoUri,
                             contentDescription = exercise.name,

@@ -61,6 +61,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     val userStats: StateFlow<UserStats>
     val workoutLogs: StateFlow<List<WorkoutLog>>
     val allSetLogs: StateFlow<List<ExerciseSetLog>>
+    val allWeightLogs: StateFlow<List<WeightLog>>
+    val allExerciseInfo: StateFlow<List<ExerciseInfo>>
     
     // Active date string: YYYY-MM-DD
     private val _selectedDate = MutableStateFlow("")
@@ -220,13 +222,73 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         allSetLogs = repository.allSetLogs
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+        allWeightLogs = repository.allWeightLogs
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+        allExerciseInfo = repository.allExerciseInfo
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
         todayNutrition = _selectedDate.flatMapLatest { date ->
             repository.getNutritionForDate(date)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
         // Initialize UserStats state in Db if empty
         viewModelScope.launch {
-            repository.getUserStatsDirect()
+            val stats = repository.getUserStatsDirect()
+            if (repository.allWeightLogs.first().isEmpty()) {
+                val cal = Calendar.getInstance()
+                val sdfFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val baseWeight = stats.weight
+                
+                val points = listOf(
+                    Pair(-21, baseWeight - 1.8),
+                    Pair(-18, baseWeight - 1.5),
+                    Pair(-14, baseWeight - 1.0),
+                    Pair(-11, baseWeight - 1.2),
+                    Pair(-7, baseWeight - 0.7),
+                    Pair(-4, baseWeight - 0.4),
+                    Pair(0, baseWeight)
+                )
+                
+                points.forEach { (daysOffset, weightVal) ->
+                    val tempCal = cal.clone() as Calendar
+                    tempCal.add(Calendar.DAY_OF_YEAR, daysOffset)
+                    val dStr = sdfFormat.format(tempCal.time)
+                    val dMillis = tempCal.timeInMillis
+                    repository.saveWeightLog(WeightLog(dateString = dStr, dateMillis = dMillis, weight = weightVal))
+                }
+            }
+
+            // Pre-populate exercise library if empty
+            if (repository.getExerciseInfo("Жим в рычажном тренажере или Смите") == null) {
+                val allDefaultExercises = programDays.flatMap { day ->
+                    day.exercises.map { pe ->
+                        val category = when {
+                            day.dayName.contains("ЖИМ", ignoreCase = true) -> {
+                                if (pe.name.contains("трицепс", ignoreCase = true) || pe.name.contains("разгибание", ignoreCase = true)) "Руки"
+                                else if (pe.name.contains("плеч", ignoreCase = true) || pe.name.contains("разведение", ignoreCase = true)) "Плечи"
+                                else "Грудь"
+                            }
+                            day.dayName.contains("ТЯГ", ignoreCase = true) -> {
+                                if (pe.name.contains("бицепс", ignoreCase = true) || pe.name.contains("сгибание", ignoreCase = true) || pe.name.contains("молот", ignoreCase = true)) "Руки"
+                                else "Спина"
+                            }
+                            else -> {
+                                if (pe.name.contains("пресс", ignoreCase = true) || pe.name.contains("скруч", ignoreCase = true)) "Пресс"
+                                else "Ноги"
+                            }
+                        }
+                        ExerciseInfo(
+                            name = pe.name,
+                            technique = pe.technique,
+                            category = category,
+                            photoUri = null,
+                            isCustom = false
+                        )
+                    }
+                }.distinctBy { it.name }
+                repository.insertAllExercises(allDefaultExercises)
+            }
         }
     }
 
@@ -235,6 +297,17 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val current = userStats.value
             repository.saveUserStats(current.copy(weight = weight))
+            
+            // Also save/update weight log for today:
+            val sdfStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val todayStr = sdfStr.format(Date())
+            repository.saveWeightLog(
+                WeightLog(
+                    dateString = todayStr,
+                    dateMillis = System.currentTimeMillis(),
+                    weight = weight
+                )
+            )
         }
     }
 
@@ -582,6 +655,78 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         val dateStr = _selectedDate.value
         viewModelScope.launch {
             repository.clearNutritionForDate(dateStr)
+        }
+    }
+
+    // --- Exercise Library Operations ---
+    fun addCustomExercise(name: String, technique: String, category: String, photoUri: String? = null) {
+        viewModelScope.launch {
+            repository.insertOrUpdateExercise(
+                ExerciseInfo(
+                    name = name.trim(),
+                    technique = technique.trim(),
+                    category = category,
+                    photoUri = photoUri,
+                    isCustom = true
+                )
+            )
+        }
+    }
+
+    fun updateExercisePhoto(name: String, photoUri: String?) {
+        viewModelScope.launch {
+            val existing = repository.getExerciseInfo(name)
+            if (existing != null) {
+                repository.insertOrUpdateExercise(existing.copy(photoUri = photoUri))
+            } else {
+                repository.insertOrUpdateExercise(
+                    ExerciseInfo(
+                        name = name,
+                        technique = "",
+                        photoUri = photoUri,
+                        category = "Другое",
+                        isCustom = false
+                    )
+                )
+            }
+        }
+    }
+
+    fun deleteExercise(name: String) {
+        viewModelScope.launch {
+            repository.deleteExercise(name)
+        }
+    }
+
+    fun addExerciseToActiveWorkout(name: String, setsCount: Int, reps: String, restSec: Int, technique: String) {
+        val current = _activeExercises.value.toMutableList()
+        val extra = ActiveExerciseState(
+            name = name,
+            targetSets = setsCount,
+            targetReps = reps,
+            defaultRestSec = restSec,
+            technique = technique,
+            sets = List(setsCount) { idx ->
+                WorkoutSetState(setIndex = idx + 1)
+            }
+        )
+        current.add(extra)
+        _activeExercises.value = current
+        
+        // Also ensure this exercise exists in ExerciseInfo table!
+        viewModelScope.launch {
+            val existing = repository.getExerciseInfo(name)
+            if (existing == null) {
+                repository.insertOrUpdateExercise(
+                    ExerciseInfo(
+                        name = name,
+                        technique = technique,
+                        category = "Другое",
+                        photoUri = null,
+                        isCustom = true
+                    )
+                )
+            }
         }
     }
 }

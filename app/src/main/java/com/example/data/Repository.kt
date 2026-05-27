@@ -6,6 +6,28 @@ class GymRepository(private val database: AppDatabase) {
     val userStats: Flow<UserStats?> = database.userStatsDao().getUserStatsFlow()
     val allWorkoutLogs: Flow<List<WorkoutLog>> = database.workoutLogDao().getAllWorkoutLogsFlow()
     val allSetLogs: Flow<List<ExerciseSetLog>> = database.exerciseSetLogDao().getAllSetLogsFlow()
+    val allWeightLogs: Flow<List<WeightLog>> = database.weightLogDao().getAllWeightLogsFlow()
+    val allExerciseInfo: Flow<List<ExerciseInfo>> = database.exerciseInfoDao().getAllExerciseInfoFlow()
+
+    suspend fun insertOrUpdateExercise(exercise: ExerciseInfo) {
+        database.exerciseInfoDao().insertOrUpdateExercise(exercise)
+    }
+
+    suspend fun insertAllExercises(exercises: List<ExerciseInfo>) {
+        database.exerciseInfoDao().insertAllExercises(exercises)
+    }
+
+    suspend fun getExerciseInfo(name: String): ExerciseInfo? {
+        return database.exerciseInfoDao().getExerciseInfo(name)
+    }
+
+    suspend fun deleteExercise(name: String) {
+        database.exerciseInfoDao().deleteExercise(name)
+    }
+
+    suspend fun saveWeightLog(weightLog: WeightLog) {
+        database.weightLogDao().insertOrUpdateWeight(weightLog)
+    }
 
     suspend fun getUserStatsDirect(): UserStats {
         return database.userStatsDao().getUserStats() ?: UserStats().also {

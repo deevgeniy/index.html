@@ -41,13 +41,31 @@ data class ExerciseSetLog(
 data class NutritionLog(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val dateString: String, // format "YYYY-MM-DD"
-    val mealType: String, // "Завтрак", "Обед", "Перед тренировкой", "После тренировки", "Ужин", "Перед сном"
+    val mealType: String, // "Завтрак", "Обед", "Перед тренировкой", "После тренировкой", "Ужин", "Перед сном"
     val productName: String,
     val weightGrams: Double,
     val calories: Double,
     val proteins: Double,
     val fats: Double,
     val carbs: Double
+)
+
+// 5. User Body Weight Logs (Dynamic tracking over time)
+@Entity(tableName = "weight_logs")
+data class WeightLog(
+    @PrimaryKey val dateString: String, // format "yyyy-MM-dd"
+    val dateMillis: Long,
+    val weight: Double
+)
+
+// 6. Exercise Details Library Entity
+@Entity(tableName = "exercise_info")
+data class ExerciseInfo(
+    @PrimaryKey val name: String,
+    val technique: String = "",
+    val photoUri: String? = null, // URI chosen by user from gallery
+    val category: String = "Грудь", // e.g. "Грудь", "Спина", "Ноги", "Плечи", "Руки", "Пресс", "Другое"
+    val isCustom: Boolean = false
 )
 
 // --- DAOs ---
@@ -112,11 +130,41 @@ interface NutritionLogDao {
     suspend fun clearNutritionForDate(date: String)
 }
 
+@Dao
+interface WeightLogDao {
+    @Query("SELECT * FROM weight_logs ORDER BY dateMillis ASC")
+    fun getAllWeightLogsFlow(): Flow<List<WeightLog>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateWeight(weightLog: WeightLog)
+
+    @Query("DELETE FROM weight_logs")
+    suspend fun clearAll()
+}
+
+@Dao
+interface ExerciseInfoDao {
+    @Query("SELECT * FROM exercise_info ORDER BY name ASC")
+    fun getAllExerciseInfoFlow(): Flow<List<ExerciseInfo>>
+
+    @Query("SELECT * FROM exercise_info WHERE name = :name LIMIT 1")
+    suspend fun getExerciseInfo(name: String): ExerciseInfo?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateExercise(exercise: ExerciseInfo)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAllExercises(exercises: List<ExerciseInfo>)
+
+    @Query("DELETE FROM exercise_info WHERE name = :name")
+    suspend fun deleteExercise(name: String)
+}
+
 // --- AppDatabase class ---
 
 @Database(
-    entities = [UserStats::class, WorkoutLog::class, ExerciseSetLog::class, NutritionLog::class],
-    version = 1,
+    entities = [UserStats::class, WorkoutLog::class, ExerciseSetLog::class, NutritionLog::class, WeightLog::class, ExerciseInfo::class],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -124,6 +172,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun workoutLogDao(): WorkoutLogDao
     abstract fun exerciseSetLogDao(): ExerciseSetLogDao
     abstract fun nutritionLogDao(): NutritionLogDao
+    abstract fun weightLogDao(): WeightLogDao
+    abstract fun exerciseInfoDao(): ExerciseInfoDao
 
     companion object {
         @Volatile

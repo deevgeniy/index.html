@@ -6,7 +6,7 @@
     <title>GYM PRO — Тренировочный дневник</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: #0a0c0f; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #eef2ff; min-height: 100vh; }
+        body { background: #0a0c0f; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #eef2ff; min-height: 100vh; overflow-x: hidden; }
         .app-container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 90px; }
         @media (min-width: 768px) { .app-container { padding: 24px 24px 100px; } .bottom-nav { padding: 12px 24px 24px; } .nav-btn { font-size: 13px; } }
         @media (max-width: 480px) { .set-row { flex-direction: column; align-items: stretch; } .nav-btn { font-size: 9px; padding: 4px 6px; } }
@@ -34,6 +34,7 @@
         .stats-panel { background: #0f1219; border-radius: 20px; padding: 12px; margin-bottom: 16px; text-align: center; }
         .stats-panel span { color: #ffb347; font-weight: bold; }
         .exercise-desc { font-size: 12px; color: #8e96a6; margin: 8px 0; padding: 8px; background: #0b0e14; border-radius: 16px; }
+        .swipe-area { touch-action: pan-y pinch-zoom; }
     </style>
 </head>
 <body>
@@ -150,6 +151,33 @@ function getMaxRepsLastWeek(exId) {
     return maxR;
 }
 
+// ==================== СВАЙП ====================
+let touchStartX = 0;
+let touchEndX = 0;
+
+function handleSwipe() {
+    if(currentTab !== "workout") return;
+    let day = PROGRAM[currentDay];
+    let swipeThreshold = 50;
+    if(touchEndX < touchStartX - swipeThreshold) {
+        if(currentExIndex + 1 < day.exercises.length) {
+            currentExIndex++;
+            stopTimer();
+            render();
+        } else {
+            markWorkout();
+            alert("🎉 Тренировка завершена!");
+        }
+    }
+    if(touchEndX > touchStartX + swipeThreshold) {
+        if(currentExIndex > 0) {
+            currentExIndex--;
+            stopTimer();
+            render();
+        }
+    }
+}
+
 // ==================== ОТРИСОВКА ====================
 function render() {
     if(currentTab === "workout") renderWorkout();
@@ -203,7 +231,7 @@ function renderWorkout() {
         </div>`;
     }
     
-    let html = `<div class="card">
+    let html = `<div class="card swipe-area" id="swipeArea">
         <div class="flex-between">
             <span class="section-title">💪 ${day.name}</span>
             <select id="daySelect">
@@ -232,9 +260,17 @@ function renderWorkout() {
             <button id="prevEx" ${currentExIndex===0?'disabled':''}>◀ Назад</button>
             <button id="nextEx" ${currentExIndex===day.exercises.length-1?'disabled':''}>Вперёд ▶</button>
         </div>
+        <div style="text-align:center; margin-top:12px; font-size:11px; color:#8e96a6;">👆 Свайп влево/вправо по карточке</div>
     </div>`;
     
     document.getElementById("app").innerHTML = html;
+    
+    // Свайп
+    let swipeArea = document.getElementById("swipeArea");
+    if(swipeArea) {
+        swipeArea.addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; });
+        swipeArea.addEventListener("touchend", (e) => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); });
+    }
     
     document.getElementById("daySelect").value = currentDay;
     document.getElementById("daySelect").onchange = (e) => {
@@ -376,9 +412,9 @@ function renderWeight() {
     });
 }
 
-// ========== ГЛАВНОЕ — ФОТО ПРОГРЕССА (ИСПРАВЛЕНО!) ==========
+// ========== ФОТО ПРОГРЕССА (РАБОТАЕТ!) ==========
 function renderPhotos() {
-    let html = `<div class="card">
+    let html = `<div class="card" id="photosCard">
         <div class="section-title">📸 Фото прогресса</div>
         <button class="btn-primary" id="addPhotoBtn" style="margin-bottom:16px;">➕ Добавить фото</button>
     </div>`;
@@ -400,7 +436,6 @@ function renderPhotos() {
     
     document.getElementById("app").innerHTML = html;
     
-    // Прямая привязка события
     let btn = document.getElementById("addPhotoBtn");
     if(btn) {
         btn.onclick = function() {
@@ -413,12 +448,11 @@ function renderPhotos() {
                     let reader = new FileReader();
                     reader.onload = function(ev) {
                         let comment = prompt("Комментарий к фото:", "Мой прогресс");
-                        let newPhoto = {
+                        photos.push({
                             date: getToday(),
                             comment: comment || "",
                             data: ev.target.result
-                        };
-                        photos.push(newPhoto);
+                        });
                         saveAll();
                         render();
                     };

@@ -2,29 +2,159 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>GYM PRO — Твой дневник</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0c0f; font-family: system-ui; color: #eef2ff; padding-bottom: 80px; }
-        .app-container { max-width: 560px; margin: 0 auto; padding: 18px 16px 90px; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 560px; margin: 0 auto; background: #111417; display: flex; justify-content: space-around; padding: 8px 4px 20px; flex-wrap: wrap; z-index: 100; border-top: 1px solid #2a2f38; }
-        .nav-btn { background: none; border: none; color: #8e96a6; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 6px; border-radius: 40px; cursor: pointer; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        /* Адаптация под все устройства */
+        html { font-size: 16px; }
+        body { 
+            background: #0a0c0f; 
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; 
+            color: #eef2ff; 
+            min-height: 100vh;
+        }
+        
+        /* Центрирование контента */
+        .app-container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px 16px 90px; 
+        }
+        
+        /* Для планшетов и ПК — шире */
+        @media (min-width: 768px) {
+            .app-container { padding: 24px 24px 100px; }
+            .bottom-nav { max-width: 1200px; padding: 12px 24px 24px; }
+            .nav-btn { font-size: 13px; padding: 8px 16px; }
+            .nav-icon { font-size: 22px; }
+            .set-row { padding: 16px; }
+            input, select, button { font-size: 16px; }
+        }
+        
+        @media (min-width: 1024px) {
+            .app-container { padding: 32px 32px 100px; }
+            .card { padding: 24px; }
+        }
+        
+        /* Навигация */
+        .bottom-nav { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            margin: 0 auto; 
+            background: #111417e6; 
+            backdrop-filter: blur(20px); 
+            display: flex; 
+            justify-content: center; 
+            gap: 4px;
+            flex-wrap: wrap;
+            padding: 8px 12px 20px; 
+            border-top: 0.5px solid #2a2f38; 
+            z-index: 100; 
+        }
+        
+        @media (min-width: 768px) {
+            .bottom-nav { gap: 8px; }
+        }
+        
+        .nav-btn { 
+            background: none; 
+            border: none; 
+            color: #8e96a6; 
+            font-size: 11px; 
+            font-weight: 500; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 3px; 
+            padding: 6px 10px; 
+            border-radius: 40px; 
+            cursor: pointer; 
+            transition: all 0.2s;
+        }
+        
         .nav-btn.active { color: #ffb347; background: #1e1f2c; }
-        .card { background: #12151c; border-radius: 28px; padding: 20px 16px; margin-bottom: 20px; border: 1px solid #262c34; }
+        .nav-icon { font-size: 18px; }
+        
+        /* Карточки */
+        .card { 
+            background: #12151c; 
+            border-radius: 28px; 
+            padding: 18px 16px; 
+            margin-bottom: 20px; 
+            border: 1px solid #262c34; 
+        }
+        
         .section-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
-        .set-row { background: #1a1e28; border-radius: 20px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        input { background: #0b0e14; border: none; color: white; width: 60px; padding: 8px; border-radius: 30px; text-align: center; }
-        button { background: #2a2f3c; border: none; padding: 8px 14px; border-radius: 40px; color: white; cursor: pointer; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        
+        /* Тренировка */
+        .set-row { 
+            background: #1a1e28; 
+            border-radius: 20px; 
+            padding: 12px; 
+            margin-bottom: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 8px; 
+        }
+        
+        input, select { 
+            background: #0b0e14; 
+            border: none; 
+            color: white; 
+            width: 65px; 
+            padding: 8px 10px; 
+            border-radius: 30px; 
+            text-align: center; 
+            font-size: 14px;
+        }
+        
+        button { 
+            background: #2a2f3c; 
+            border: none; 
+            padding: 8px 14px; 
+            border-radius: 40px; 
+            color: white; 
+            cursor: pointer; 
+            transition: opacity 0.2s;
+            font-size: 13px;
+        }
+        
+        button:active { opacity: 0.7; }
         .btn-primary { background: #ffb347; color: #0a0c0f; font-weight: bold; width: 100%; padding: 12px; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; }
-        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-top: 12px; }
-        .calendar-day { background: #1a1e28; padding: 8px; border-radius: 30px; cursor: pointer; }
+        
+        /* Календарь */
+        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-top: 12px; }
+        .calendar-day { background: #1a1e28; padding: 10px 5px; border-radius: 30px; cursor: pointer; font-size: 14px; }
         .calendar-day.workout { background: #ffb347; color: #0a0c0f; font-weight: bold; }
+        
+        /* Фото */
         .photo-item { background: #1a1e28; border-radius: 20px; padding: 12px; margin-bottom: 16px; }
-        .photo-img { width: 100%; border-radius: 16px; margin-top: 8px; cursor: pointer; }
-        .metric-row { background: #1a1e28; border-radius: 40px; padding: 12px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; }
-        select { background: #1a1e28; color: white; padding: 8px; border-radius: 30px; border: none; }
+        .photo-img { width: 100%; max-height: 300px; object-fit: contain; border-radius: 16px; margin-top: 8px; cursor: pointer; background: #0a0c0f; }
+        .exercise-photo { width: 100%; max-height: 200px; object-fit: cover; border-radius: 16px; margin-top: 8px; cursor: pointer; }
+        
+        /* Замеры */
+        .metric-row { background: #1a1e28; border-radius: 40px; padding: 12px 16px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        
+        /* Прогресс */
+        .progress-item { background: #1a1e28; border-radius: 20px; padding: 12px; margin-top: 12px; }
+        
+        hr { border-color: #2a2f38; margin: 12px 0; }
+        
+        /* Адаптация для маленьких экранов */
+        @media (max-width: 480px) {
+            .nav-btn { padding: 4px 6px; font-size: 9px; }
+            .nav-icon { font-size: 16px; }
+            .set-row { flex-direction: column; align-items: stretch; }
+            .set-row > div { justify-content: center; }
+            input { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -68,13 +198,14 @@ let timer = null;
 let timerSec = 0;
 
 // Загружаем данные
-let logs = JSON.parse(localStorage.getItem("gym_logs")) || {};     // logs[дата][день][упражнение][подход] = {weight, reps}
-let workoutDays = JSON.parse(localStorage.getItem("gym_days")) || [];  // список дат с тренировками
+let logs = JSON.parse(localStorage.getItem("gym_logs")) || {};
+let workoutDays = JSON.parse(localStorage.getItem("gym_days")) || [];
 let maxWeight = JSON.parse(localStorage.getItem("gym_max_weight")) || {};
 let maxReps = JSON.parse(localStorage.getItem("gym_max_reps")) || {};
 let bodyWeight = JSON.parse(localStorage.getItem("gym_body_weight")) || [];
 let bodyMeasure = JSON.parse(localStorage.getItem("gym_measure")) || { chest: [], biceps: [], waist: [], thigh: [] };
 let photos = JSON.parse(localStorage.getItem("gym_photos")) || [];
+let exercisePhotos = JSON.parse(localStorage.getItem("gym_exercise_photos")) || {};
 let customExercises = JSON.parse(localStorage.getItem("gym_custom_ex")) || [];
 
 function saveAll() {
@@ -85,15 +216,14 @@ function saveAll() {
     localStorage.setItem("gym_body_weight", JSON.stringify(bodyWeight));
     localStorage.setItem("gym_measure", JSON.stringify(bodyMeasure));
     localStorage.setItem("gym_photos", JSON.stringify(photos));
+    localStorage.setItem("gym_exercise_photos", JSON.stringify(exercisePhotos));
     localStorage.setItem("gym_custom_ex", JSON.stringify(customExercises));
 }
 
 function getToday() { return new Date().toISOString().slice(0,10); }
-
 function getWeekAgo() { let d = new Date(); d.setDate(d.getDate()-7); return d.toISOString().slice(0,10); }
 
 function stopTimer() { if(timer) clearInterval(timer); timer = null; timerSec = 0; if(currentTab==="workout") render(); }
-
 function startTimer(sec) { stopTimer(); timerSec = sec; timer = setInterval(() => { if(timerSec<=1){ stopTimer(); alert("⏰ Отдых закончен!"); } else { timerSec--; if(currentTab==="workout") render(); } }, 1000); render(); }
 
 function markWorkout() { let t=getToday(); if(!workoutDays.includes(t)) { workoutDays.push(t); saveAll(); } }
@@ -131,6 +261,33 @@ function getTotalTonnage(date) {
     return total;
 }
 
+function addPhotoToExercise(exId) {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+        let file = e.target.files[0];
+        if(file) {
+            let reader = new FileReader();
+            reader.onload = (ev) => {
+                exercisePhotos[exId] = ev.target.result;
+                saveAll();
+                render();
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    input.click();
+}
+
+function deleteExercisePhoto(exId) {
+    if(confirm("Удалить фото упражнения?")) {
+        delete exercisePhotos[exId];
+        saveAll();
+        render();
+    }
+}
+
 // ==================== ОТРИСОВКА ====================
 function render() {
     if(currentTab === "workout") renderWorkout();
@@ -153,17 +310,26 @@ function renderWorkout() {
     let ex = day.exercises[currentExIndex];
     let today = getToday();
     let setsData = logs[today]?.[currentDay]?.[ex.id] || [];
+    let exPhoto = exercisePhotos[ex.id];
     
     let timerHtml = "";
-    if(timer) { let m = Math.floor(timerSec/60), s = timerSec%60; timerHtml = `<div class="card" style="background:#1f2a1f; text-align:center">⏱️ Отдых: ${m}:${s<10?'0'+s:s}<button onclick="stopTimer()">Стоп</button></div>`; }
+    if(timer) { let m = Math.floor(timerSec/60), s = timerSec%60; timerHtml = `<div class="card" style="background:#1f2a1f; text-align:center">⏱️ Отдых: ${m}:${s<10?'0'+s:s}<button onclick="stopTimer()" style="margin-left:10px">Стоп</button></div>`; }
+    
+    let photoHtml = "";
+    if(exPhoto) {
+        photoHtml = `<div style="margin-top:12px;">
+            <img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')">
+            <button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c; width:100%">🗑️ Удалить фото</button>
+        </div>`;
+    }
     
     let setsHtml = "";
     for(let i=0; i<ex.sets; i++) {
         let s = setsData[i] || { weight: "", reps: "" };
         setsHtml += `<div class="set-row">
-            <span>Подход ${i+1}</span>
-            <input type="number" id="w_${i}" value="${s.weight}" placeholder="кг" style="width:70px">
-            <input type="number" id="r_${i}" value="${s.reps}" placeholder="повт" style="width:70px">
+            <span style="min-width:70px">Подход ${i+1}</span>
+            <input type="number" id="w_${i}" value="${s.weight}" placeholder="кг" style="width:80px">
+            <input type="number" id="r_${i}" value="${s.reps}" placeholder="повт" style="width:80px">
             <button onclick="startTimer(${ex.rest})">⏱️ ${Math.floor(ex.rest/60)}:${(ex.rest%60).toString().padStart(2,'0')}</button>
         </div>`;
     }
@@ -172,7 +338,13 @@ function renderWorkout() {
         <div class="flex-between"><span class="section-title">💪 ${day.name}</span>
         <select id="daySelect"><option value="1">День 1 Жим</option><option value="2">День 2 Тяга</option><option value="3">День 3 Ноги</option></select></div>
         <div style="background:#0f1219; border-radius:24px; padding:16px; border-left:3px solid #ffb347;">
-            <div style="font-size:18px; font-weight:bold; margin-bottom:12px;">🏋️ ${ex.name}</div>
+            <div class="flex-between" style="flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                <div style="font-size:18px; font-weight:bold;">🏋️ ${ex.name}</div>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="addPhotoToExercise('${ex.id}')" style="background:#2a2f3c;">📸 Добавить фото</button>
+                </div>
+            </div>
+            ${photoHtml}
             ${setsHtml}
             ${timerHtml}
             <button class="btn-primary" id="completeEx">✓ Завершить упражнение</button>
@@ -221,7 +393,7 @@ function renderProgress() {
         <div class="flex-between"><span>💪 Тоннаж сегодня:</span><strong>${Math.round(totalToday)} кг</strong></div>
         <div class="flex-between"><span>📆 Тоннаж неделю назад:</span><strong>${Math.round(totalWeek)} кг</strong></div>
         <div class="flex-between"><span>📈 Динамика:</span><strong style="color:#ffb347">${diffTotal>0?'+':''}${Math.round(diffTotal)} кг</strong></div>
-        <hr style="margin:16px 0;">`;
+        <hr>`;
     
     for(let day of [1,2,3]) {
         for(let ex of PROGRAM[day].exercises) {
@@ -230,7 +402,7 @@ function renderProgress() {
             let tonnageToday = getTonnage(today, day, ex.id);
             let tonnageWeek = getTonnage(weekAgo, day, ex.id);
             let exDiff = tonnageToday - tonnageWeek;
-            html += `<div style="background:#1a1e28; border-radius:20px; padding:12px; margin-top:12px;">
+            html += `<div class="progress-item">
                 <div><strong>${ex.name}</strong></div>
                 <div class="flex-between"><span>🏆 макс. вес:</span><span>${bestW} кг</span></div>
                 <div class="flex-between"><span>🏆 макс. повторы:</span><span>${bestR}</span></div>
@@ -272,12 +444,12 @@ function renderMeasure() {
     let html = `<div class="card"><div class="section-title">📏 Замеры (см)</div>`;
     for(let [name,key] of Object.entries(measures)) {
         let last = bodyMeasure[key][bodyMeasure[key].length-1]?.value || "—";
-        html += `<div class="metric-row"><span>${name}</span><span><strong>${last}</strong> см</span><button onclick="addMeasure('${key}','${name}')">+</button></div>`;
+        html += `<div class="metric-row"><span>${name}</span><span><strong>${last}</strong> см</span><button onclick="addMeasure('${key}','${name}')">+ Записать</button></div>`;
     }
-    html += `<button class="btn-primary" id="measHistory">📊 История</button></div>`;
+    html += `<button class="btn-primary" id="measHistory">📊 История замеров</button></div>`;
     document.getElementById("app").innerHTML = html;
     document.getElementById("measHistory")?.addEventListener("click",()=>{
-        let msg="История замеров:\n";
+        let msg="📏 История замеров:\n";
         for(let [name,key] of Object.entries(measures)) {
             msg+=`\n${name}: `;
             bodyMeasure[key].slice(-5).forEach(m=>msg+=`${m.date} ${m.value}см | `);
@@ -289,25 +461,27 @@ function renderMeasure() {
 function renderWeight() {
     let last = bodyWeight[bodyWeight.length-1]?.weight || "—";
     let html = `<div class="card"><div class="section-title">⚖️ Вес тела</div>
-        <div class="metric-row"><span>Текущий вес:</span><strong>${last} кг</strong><button onclick="addWeight()">+</button></div>
-        <button class="btn-primary" id="weightHistory">📈 История</button>
+        <div class="metric-row"><span>Текущий вес:</span><strong>${last} кг</strong><button onclick="addWeight()">+ Записать</button></div>
+        <button class="btn-primary" id="weightHistory">📈 История веса</button>
     </div>`;
     document.getElementById("app").innerHTML = html;
     document.getElementById("weightHistory")?.addEventListener("click",()=>{
-        let msg="Вес:\n";
+        let msg="📈 История веса:\n";
         bodyWeight.slice(-10).forEach(w=>msg+=`${w.date}: ${w.weight} кг\n`);
         alert(msg);
     });
 }
 
 function renderPhotos() {
-    let html = `<div class="card"><div class="section-title">📸 Фото прогресса</div><button class="btn-primary" id="addPhotoBtn">➕ Добавить фото</button></div>`;
+    let html = `<div class="card"><div class="section-title">📸 Фото прогресса</div><button class="btn-primary" id="addPhotoBtn">➕ Добавить фото прогресса</button></div>`;
+    if(photos.length === 0) {
+        html += `<div class="card" style="text-align:center; color:#8e96a6;">Нет фото. Добавьте первое!</div>`;
+    }
     for(let p of photos) {
         html += `<div class="photo-item">
-            <div>📅 ${p.date}</div>
+            <div class="flex-between"><span>📅 ${p.date}</span><button onclick="deletePhoto('${p.id}')" style="background:#4a1e2c;">🗑️</button></div>
             <img src="${p.data}" class="photo-img" onclick="viewPhoto('${p.data}')">
-            <div>${p.comment||""}</div>
-            <button onclick="deletePhoto('${p.id}')" style="margin-top:8px; background:#4a1e2c;">🗑️ Удалить</button>
+            <div style="margin-top:8px;">${p.comment || ""}</div>
         </div>`;
     }
     document.getElementById("app").innerHTML = html;
@@ -320,8 +494,8 @@ function renderPhotos() {
             if(f) {
                 let r = new FileReader();
                 r.onload = (ev) => {
-                    let comment = prompt("Комментарий:", "Мой прогресс");
-                    photos.unshift({ id: Date.now(), date: getToday(), comment: comment||"", data: ev.target.result });
+                    let comment = prompt("Комментарий к фото:", "Мой прогресс");
+                    photos.unshift({ id: Date.now(), date: getToday(), comment: comment || "", data: ev.target.result });
                     saveAll();
                     render();
                 };
@@ -333,12 +507,20 @@ function renderPhotos() {
 }
 
 function renderExercises() {
-    let html = `<div class="card"><div class="section-title">📝 Мои упражнения</div><button class="btn-primary" id="addExBtn">➕ Добавить</button>`;
+    let html = `<div class="card"><div class="section-title">📝 Мои упражнения</div><button class="btn-primary" id="addExBtn">➕ Добавить своё упражнение</button>`;
     for(let i=0; i<customExercises.length; i++) {
-        html += `<div class="flex-between" style="background:#1a1e28; padding:12px; border-radius:20px; margin-top:8px;">
-            <span><strong>${customExercises[i].name}</strong><br><small>${customExercises[i].sets} подходов</small></span>
-            <button onclick="deleteCustomEx(${i})" style="background:#4a1e2c;">🗑️</button>
-        </div>`;
+        let ex = customExercises[i];
+        let exPhoto = exercisePhotos[ex.id];
+        html += `<div class="progress-item">
+            <div class="flex-between"><strong>${ex.name}</strong><button onclick="deleteCustomEx(${i})" style="background:#4a1e2c;">🗑️</button></div>
+            <div><small>${ex.sets} подходов, отдых ${ex.rest}с</small></div>`;
+        if(exPhoto) {
+            html += `<img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')" style="max-height:150px;">`;
+            html += `<button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c;">🗑️ Удалить фото</button>`;
+        } else {
+            html += `<button onclick="addPhotoToExercise('${ex.id}')" style="margin-top:8px;">📸 Добавить фото</button>`;
+        }
+        html += `</div>`;
     }
     html += `</div>`;
     document.getElementById("app").innerHTML = html;
@@ -358,10 +540,12 @@ function renderSettings() {
     document.getElementById("app").innerHTML = `<div class="card">
         <div class="section-title">⚙️ Настройки</div>
         <button class="btn-primary" id="resetBtn" style="background:#4a1e2c;">🗑️ Сбросить ВСЕ данные</button>
-        <p style="margin-top:16px;">Все данные хранятся только на вашем телефоне.</p>
+        <p style="margin-top:16px;">Все данные хранятся только на вашем устройстве.</p>
+        <hr>
+        <p><small>📸 Фото упражнений и фото прогресса сохраняются отдельно.<br>💪 Тренировки автоматически отмечаются в календаре.</small></p>
     </div>`;
     document.getElementById("resetBtn")?.addEventListener("click",()=>{
-        if(confirm("Удалить всё? Восстановить будет нельзя.")) {
+        if(confirm("Удалить абсолютно всё? Восстановить будет нельзя.")) {
             localStorage.clear();
             location.reload();
         }
@@ -371,6 +555,8 @@ function renderSettings() {
 // Глобальные функции
 window.stopTimer = stopTimer;
 window.startTimer = startTimer;
+window.addPhotoToExercise = addPhotoToExercise;
+window.deleteExercisePhoto = deleteExercisePhoto;
 window.addMeasure = (key, name) => {
     let val = parseFloat(prompt(`${name} (см):`));
     if(!isNaN(val)) {
@@ -389,8 +575,8 @@ window.addWeight = () => {
 };
 window.viewPhoto = (url) => {
     let modal = document.createElement('div');
-    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center';
-    modal.innerHTML = `<img src="${url}" style="max-width:90%;max-height:70%;border-radius:20px;"><button onclick="this.parentElement.remove()" style="margin-top:20px;background:#ffb347;padding:10px 20px;">Закрыть</button>`;
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;flex-direction:column;';
+    modal.innerHTML = `<img src="${url}" style="max-width:90%;max-height:70%;border-radius:20px;"><button onclick="this.parentElement.remove()" style="margin-top:20px;background:#ffb347;padding:10px 20px;border-radius:40px;">Закрыть</button>`;
     document.body.appendChild(modal);
 };
 window.deletePhoto = (id) => { photos = photos.filter(p => p.id != id); saveAll(); render(); };

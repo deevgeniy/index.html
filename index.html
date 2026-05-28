@@ -3,158 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>GYM PRO — Твой дневник</title>
+    <title>GYM PRO — Фото, даты, прогресс</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        /* Адаптация под все устройства */
-        html { font-size: 16px; }
-        body { 
-            background: #0a0c0f; 
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; 
-            color: #eef2ff; 
-            min-height: 100vh;
-        }
-        
-        /* Центрирование контента */
-        .app-container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px 16px 90px; 
-        }
-        
-        /* Для планшетов и ПК — шире */
-        @media (min-width: 768px) {
-            .app-container { padding: 24px 24px 100px; }
-            .bottom-nav { max-width: 1200px; padding: 12px 24px 24px; }
-            .nav-btn { font-size: 13px; padding: 8px 16px; }
-            .nav-icon { font-size: 22px; }
-            .set-row { padding: 16px; }
-            input, select, button { font-size: 16px; }
-        }
-        
-        @media (min-width: 1024px) {
-            .app-container { padding: 32px 32px 100px; }
-            .card { padding: 24px; }
-        }
-        
-        /* Навигация */
-        .bottom-nav { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            margin: 0 auto; 
-            background: #111417e6; 
-            backdrop-filter: blur(20px); 
-            display: flex; 
-            justify-content: center; 
-            gap: 4px;
-            flex-wrap: wrap;
-            padding: 8px 12px 20px; 
-            border-top: 0.5px solid #2a2f38; 
-            z-index: 100; 
-        }
-        
-        @media (min-width: 768px) {
-            .bottom-nav { gap: 8px; }
-        }
-        
-        .nav-btn { 
-            background: none; 
-            border: none; 
-            color: #8e96a6; 
-            font-size: 11px; 
-            font-weight: 500; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 3px; 
-            padding: 6px 10px; 
-            border-radius: 40px; 
-            cursor: pointer; 
-            transition: all 0.2s;
-        }
-        
+        body { background: #0a0c0f; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #eef2ff; min-height: 100vh; }
+        .app-container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 90px; }
+        @media (min-width: 768px) { .app-container { padding: 24px 24px 100px; } .bottom-nav { padding: 12px 24px 24px; } .nav-btn { font-size: 13px; } }
+        @media (max-width: 480px) { .set-row { flex-direction: column; align-items: stretch; } .nav-btn { font-size: 9px; padding: 4px 6px; } }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; margin: 0 auto; background: #111417e6; backdrop-filter: blur(20px); display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; padding: 8px 12px 20px; border-top: 0.5px solid #2a2f38; z-index: 100; }
+        .nav-btn { background: none; border: none; color: #8e96a6; font-size: 11px; font-weight: 500; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 10px; border-radius: 40px; cursor: pointer; transition: all 0.2s; }
         .nav-btn.active { color: #ffb347; background: #1e1f2c; }
-        .nav-icon { font-size: 18px; }
-        
-        /* Карточки */
-        .card { 
-            background: #12151c; 
-            border-radius: 28px; 
-            padding: 18px 16px; 
-            margin-bottom: 20px; 
-            border: 1px solid #262c34; 
-        }
-        
+        .card { background: #12151c; border-radius: 28px; padding: 18px 16px; margin-bottom: 20px; border: 1px solid #262c34; }
         .section-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        
-        /* Тренировка */
-        .set-row { 
-            background: #1a1e28; 
-            border-radius: 20px; 
-            padding: 12px; 
-            margin-bottom: 12px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            flex-wrap: wrap; 
-            gap: 8px; 
-        }
-        
-        input, select { 
-            background: #0b0e14; 
-            border: none; 
-            color: white; 
-            width: 65px; 
-            padding: 8px 10px; 
-            border-radius: 30px; 
-            text-align: center; 
-            font-size: 14px;
-        }
-        
-        button { 
-            background: #2a2f3c; 
-            border: none; 
-            padding: 8px 14px; 
-            border-radius: 40px; 
-            color: white; 
-            cursor: pointer; 
-            transition: opacity 0.2s;
-            font-size: 13px;
-        }
-        
+        .set-row { background: #1a1e28; border-radius: 20px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        input, select { background: #0b0e14; border: none; color: white; width: 70px; padding: 8px 10px; border-radius: 30px; text-align: center; font-size: 14px; }
+        button { background: #2a2f3c; border: none; padding: 8px 14px; border-radius: 40px; color: white; cursor: pointer; font-size: 13px; transition: opacity 0.2s; }
         button:active { opacity: 0.7; }
         .btn-primary { background: #ffb347; color: #0a0c0f; font-weight: bold; width: 100%; padding: 12px; }
-        
-        /* Календарь */
         .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-top: 12px; }
         .calendar-day { background: #1a1e28; padding: 10px 5px; border-radius: 30px; cursor: pointer; font-size: 14px; }
         .calendar-day.workout { background: #ffb347; color: #0a0c0f; font-weight: bold; }
-        
-        /* Фото */
+        .calendar-day.today { border: 2px solid #ffb347; background: #2a2f3c; }
         .photo-item { background: #1a1e28; border-radius: 20px; padding: 12px; margin-bottom: 16px; }
         .photo-img { width: 100%; max-height: 300px; object-fit: contain; border-radius: 16px; margin-top: 8px; cursor: pointer; background: #0a0c0f; }
         .exercise-photo { width: 100%; max-height: 200px; object-fit: cover; border-radius: 16px; margin-top: 8px; cursor: pointer; }
-        
-        /* Замеры */
         .metric-row { background: #1a1e28; border-radius: 40px; padding: 12px 16px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        
-        /* Прогресс */
         .progress-item { background: #1a1e28; border-radius: 20px; padding: 12px; margin-top: 12px; }
-        
         hr { border-color: #2a2f38; margin: 12px 0; }
-        
-        /* Адаптация для маленьких экранов */
-        @media (max-width: 480px) {
-            .nav-btn { padding: 4px 6px; font-size: 9px; }
-            .nav-icon { font-size: 16px; }
-            .set-row { flex-direction: column; align-items: stretch; }
-            .set-row > div { justify-content: center; }
-            input { width: 100%; }
-        }
+        .date-badge { font-size: 11px; color: #8e96a6; margin-left: 8px; }
+        .week-compare { background: #0f1219; border-radius: 16px; padding: 8px; margin-top: 8px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -197,7 +75,6 @@ let currentExIndex = 0;
 let timer = null;
 let timerSec = 0;
 
-// Загружаем данные
 let logs = JSON.parse(localStorage.getItem("gym_logs")) || {};
 let workoutDays = JSON.parse(localStorage.getItem("gym_days")) || [];
 let maxWeight = JSON.parse(localStorage.getItem("gym_max_weight")) || {};
@@ -249,43 +126,24 @@ function getTonnage(date, day, exId) {
     return total;
 }
 
-function getTotalTonnage(date) {
-    let total = 0;
-    if(!logs[date]) return 0;
-    for(let d in logs[date]) {
-        for(let exId in logs[date][d]) {
-            let exData = logs[date][d][exId] || [];
-            exData.forEach(s => { let vol = parseFloat(s.weight)*parseFloat(s.reps); if(!isNaN(vol)) total += vol; });
-        }
+function getMaxWeightLastWeek(exId) {
+    let weekAgo = getWeekAgo();
+    let maxW = 0;
+    for(let day of [1,2,3]) {
+        let exData = logs[weekAgo]?.[day]?.[exId] || [];
+        exData.forEach(s => { let w = parseFloat(s.weight); if(!isNaN(w) && w > maxW) maxW = w; });
     }
-    return total;
+    return maxW;
 }
 
-function addPhotoToExercise(exId) {
-    let input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (e) => {
-        let file = e.target.files[0];
-        if(file) {
-            let reader = new FileReader();
-            reader.onload = (ev) => {
-                exercisePhotos[exId] = ev.target.result;
-                saveAll();
-                render();
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-    input.click();
-}
-
-function deleteExercisePhoto(exId) {
-    if(confirm("Удалить фото упражнения?")) {
-        delete exercisePhotos[exId];
-        saveAll();
-        render();
+function getMaxRepsLastWeek(exId) {
+    let weekAgo = getWeekAgo();
+    let maxR = 0;
+    for(let day of [1,2,3]) {
+        let exData = logs[weekAgo]?.[day]?.[exId] || [];
+        exData.forEach(s => { let r = parseFloat(s.reps); if(!isNaN(r) && r > maxR) maxR = r; });
     }
+    return maxR;
 }
 
 // ==================== ОТРИСОВКА ====================
@@ -317,10 +175,7 @@ function renderWorkout() {
     
     let photoHtml = "";
     if(exPhoto) {
-        photoHtml = `<div style="margin-top:12px;">
-            <img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')">
-            <button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c; width:100%">🗑️ Удалить фото</button>
-        </div>`;
+        photoHtml = `<div style="margin-top:12px;"><img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')"><button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c; width:100%">🗑️ Удалить фото</button></div>`;
     }
     
     let setsHtml = "";
@@ -340,9 +195,7 @@ function renderWorkout() {
         <div style="background:#0f1219; border-radius:24px; padding:16px; border-left:3px solid #ffb347;">
             <div class="flex-between" style="flex-wrap:wrap; gap:10px; margin-bottom:12px;">
                 <div style="font-size:18px; font-weight:bold;">🏋️ ${ex.name}</div>
-                <div style="display:flex; gap:8px;">
-                    <button onclick="addPhotoToExercise('${ex.id}')" style="background:#2a2f3c;">📸 Добавить фото</button>
-                </div>
+                <div><button onclick="addPhotoToExercise('${ex.id}')" style="background:#2a2f3c;">📸 Добавить фото</button></div>
             </div>
             ${photoHtml}
             ${setsHtml}
@@ -385,8 +238,13 @@ function renderWorkout() {
 function renderProgress() {
     let today = getToday();
     let weekAgo = getWeekAgo();
-    let totalToday = getTotalTonnage(today);
-    let totalWeek = getTotalTonnage(weekAgo);
+    let totalToday = 0, totalWeek = 0;
+    for(let day of [1,2,3]) {
+        for(let ex of PROGRAM[day].exercises) {
+            totalToday += getTonnage(today, day, ex.id);
+            totalWeek += getTonnage(weekAgo, day, ex.id);
+        }
+    }
     let diffTotal = totalToday - totalWeek;
     
     let html = `<div class="card"><div class="section-title">📊 Прогресс</div>
@@ -399,16 +257,19 @@ function renderProgress() {
         for(let ex of PROGRAM[day].exercises) {
             let bestW = maxWeight[ex.id] || 0;
             let bestR = maxReps[ex.id] || 0;
+            let lastWeekW = getMaxWeightLastWeek(ex.id);
+            let lastWeekR = getMaxRepsLastWeek(ex.id);
             let tonnageToday = getTonnage(today, day, ex.id);
             let tonnageWeek = getTonnage(weekAgo, day, ex.id);
-            let exDiff = tonnageToday - tonnageWeek;
+            let wDiff = bestW - lastWeekW;
+            let rDiff = bestR - lastWeekR;
+            
             html += `<div class="progress-item">
                 <div><strong>${ex.name}</strong></div>
-                <div class="flex-between"><span>🏆 макс. вес:</span><span>${bestW} кг</span></div>
-                <div class="flex-between"><span>🏆 макс. повторы:</span><span>${bestR}</span></div>
+                <div class="flex-between"><span>🏆 макс. вес:</span><span>${bestW} кг <span class="date-badge">(неделю назад: ${lastWeekW} кг, ${wDiff>0?'+':''}${wDiff})</span></span></div>
+                <div class="flex-between"><span>🏆 макс. повторы:</span><span>${bestR} <span class="date-badge">(неделю назад: ${lastWeekR}, ${rDiff>0?'+':''}${rDiff})</span></span></div>
                 <div class="flex-between"><span>📊 тоннаж сегодня:</span><span>${Math.round(tonnageToday)} кг</span></div>
                 <div class="flex-between"><span>📊 тоннаж неделю назад:</span><span>${Math.round(tonnageWeek)} кг</span></div>
-                <div class="flex-between"><span>📈 динамика:</span><span style="color:#ffb347">${exDiff>0?'+':''}${Math.round(exDiff)} кг</span></div>
             </div>`;
         }
     }
@@ -417,8 +278,8 @@ function renderProgress() {
 }
 
 function renderCalendar() {
-    let today = new Date();
-    let y = today.getFullYear(), m = today.getMonth();
+    let todayDate = new Date();
+    let y = todayDate.getFullYear(), m = todayDate.getMonth();
     let first = new Date(y,m,1);
     let start = first.getDay()===0?6:first.getDay()-1;
     let daysInMonth = new Date(y,m+1,0).getDate();
@@ -431,7 +292,8 @@ function renderCalendar() {
         else {
             let dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
             let has = workoutDays.includes(dateStr);
-            cal += `<div class="calendar-day ${has?'workout':''}" onclick="alert('${dateStr}: ${has?"✅ тренировка была":"❌ отдых"}')">${day}</div>`;
+            let isToday = (todayDate.getDate()===day && todayDate.getMonth()===m && todayDate.getFullYear()===y);
+            cal += `<div class="calendar-day ${has?'workout':''} ${isToday?'today':''}" onclick="alert('${dateStr}: ${has?"✅ тренировка была":"❌ отдых"}')">${day}</div>`;
         }
     });
     cal += `</div><button class="btn-primary" id="goToday" style="margin-top:16px;">🏋️ Сегодняшняя тренировка</button>`;
@@ -441,47 +303,54 @@ function renderCalendar() {
 
 function renderMeasure() {
     let measures = {Грудь:"chest", Бицепс:"biceps", Талия:"waist", Бедро:"thigh"};
-    let html = `<div class="card"><div class="section-title">📏 Замеры (см)</div>`;
+    let html = `<div class="card"><div class="section-title">📏 Замеры (см) — с датами</div>`;
     for(let [name,key] of Object.entries(measures)) {
-        let last = bodyMeasure[key][bodyMeasure[key].length-1]?.value || "—";
-        html += `<div class="metric-row"><span>${name}</span><span><strong>${last}</strong> см</span><button onclick="addMeasure('${key}','${name}')">+ Записать</button></div>`;
+        let last = bodyMeasure[key][bodyMeasure[key].length-1] || null;
+        let lastStr = last ? `${last.value} см (${last.date})` : "—";
+        html += `<div class="metric-row"><span>${name}</span><span><strong>${lastStr}</strong></span><button onclick="addMeasure('${key}','${name}')">+ Записать</button></div>`;
+        if(bodyMeasure[key].length > 0) {
+            html += `<div style="font-size:11px; color:#8e96a6; margin-left:16px; margin-bottom:8px;">📋 История: ${bodyMeasure[key].slice(-5).reverse().map(m=>`${m.date} ${m.value}см`).join(' | ')}</div>`;
+        }
     }
-    html += `<button class="btn-primary" id="measHistory">📊 История замеров</button></div>`;
+    html += `<button class="btn-primary" id="measHistory">📊 Полная история замеров</button></div>`;
     document.getElementById("app").innerHTML = html;
     document.getElementById("measHistory")?.addEventListener("click",()=>{
         let msg="📏 История замеров:\n";
         for(let [name,key] of Object.entries(measures)) {
             msg+=`\n${name}: `;
-            bodyMeasure[key].slice(-5).forEach(m=>msg+=`${m.date} ${m.value}см | `);
+            bodyMeasure[key].forEach(m=>msg+=`${m.date} ${m.value}см | `);
         }
         alert(msg);
     });
 }
 
 function renderWeight() {
-    let last = bodyWeight[bodyWeight.length-1]?.weight || "—";
-    let html = `<div class="card"><div class="section-title">⚖️ Вес тела</div>
-        <div class="metric-row"><span>Текущий вес:</span><strong>${last} кг</strong><button onclick="addWeight()">+ Записать</button></div>
-        <button class="btn-primary" id="weightHistory">📈 История веса</button>
-    </div>`;
+    let last = bodyWeight[bodyWeight.length-1] || null;
+    let lastStr = last ? `${last.weight} кг (${last.date})` : "—";
+    let html = `<div class="card"><div class="section-title">⚖️ Вес тела — с датами</div>
+        <div class="metric-row"><span>Текущий вес:</span><strong>${lastStr}</strong><button onclick="addWeight()">+ Записать</button></div>`;
+    if(bodyWeight.length > 0) {
+        html += `<div style="font-size:11px; color:#8e96a6; margin:8px 0;">📋 История: ${bodyWeight.slice(-5).reverse().map(w=>`${w.date} ${w.weight}кг`).join(' | ')}</div>`;
+    }
+    html += `<button class="btn-primary" id="weightHistory">📈 Полная история веса</button></div>`;
     document.getElementById("app").innerHTML = html;
     document.getElementById("weightHistory")?.addEventListener("click",()=>{
         let msg="📈 История веса:\n";
-        bodyWeight.slice(-10).forEach(w=>msg+=`${w.date}: ${w.weight} кг\n`);
+        bodyWeight.forEach(w=>msg+=`${w.date}: ${w.weight} кг\n`);
         alert(msg);
     });
 }
 
 function renderPhotos() {
-    let html = `<div class="card"><div class="section-title">📸 Фото прогресса</div><button class="btn-primary" id="addPhotoBtn">➕ Добавить фото прогресса</button></div>`;
+    let html = `<div class="card"><div class="section-title">📸 Фото прогресса — с датами</div><button class="btn-primary" id="addPhotoBtn">➕ Добавить фото прогресса</button></div>`;
     if(photos.length === 0) {
         html += `<div class="card" style="text-align:center; color:#8e96a6;">Нет фото. Добавьте первое!</div>`;
     }
-    for(let p of photos) {
+    for(let i=0; i<photos.length; i++) {
+        let p = photos[i];
         html += `<div class="photo-item">
-            <div class="flex-between"><span>📅 ${p.date}</span><button onclick="deletePhoto('${p.id}')" style="background:#4a1e2c;">🗑️</button></div>
+            <div class="flex-between"><span>📅 ${p.date} ${p.comment ? '— ' + p.comment : ''}</span><button onclick="deletePhoto(${i})" style="background:#4a1e2c;">🗑️</button></div>
             <img src="${p.data}" class="photo-img" onclick="viewPhoto('${p.data}')">
-            <div style="margin-top:8px;">${p.comment || ""}</div>
         </div>`;
     }
     document.getElementById("app").innerHTML = html;
@@ -495,7 +364,7 @@ function renderPhotos() {
                 let r = new FileReader();
                 r.onload = (ev) => {
                     let comment = prompt("Комментарий к фото:", "Мой прогресс");
-                    photos.unshift({ id: Date.now(), date: getToday(), comment: comment || "", data: ev.target.result });
+                    photos.push({ date: getToday(), comment: comment || "", data: ev.target.result });
                     saveAll();
                     render();
                 };
@@ -542,7 +411,7 @@ function renderSettings() {
         <button class="btn-primary" id="resetBtn" style="background:#4a1e2c;">🗑️ Сбросить ВСЕ данные</button>
         <p style="margin-top:16px;">Все данные хранятся только на вашем устройстве.</p>
         <hr>
-        <p><small>📸 Фото упражнений и фото прогресса сохраняются отдельно.<br>💪 Тренировки автоматически отмечаются в календаре.</small></p>
+        <p><small>📸 Фото упражнений и фото прогресса сохраняются отдельно.<br>💪 Тренировки автоматически отмечаются в календаре.<br>📅 Сегодняшняя дата подсвечивается в календаре.</small></p>
     </div>`;
     document.getElementById("resetBtn")?.addEventListener("click",()=>{
         if(confirm("Удалить абсолютно всё? Восстановить будет нельзя.")) {
@@ -555,8 +424,25 @@ function renderSettings() {
 // Глобальные функции
 window.stopTimer = stopTimer;
 window.startTimer = startTimer;
-window.addPhotoToExercise = addPhotoToExercise;
-window.deleteExercisePhoto = deleteExercisePhoto;
+window.addPhotoToExercise = (exId) => {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+        let file = e.target.files[0];
+        if(file) {
+            let reader = new FileReader();
+            reader.onload = (ev) => {
+                exercisePhotos[exId] = ev.target.result;
+                saveAll();
+                render();
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    input.click();
+};
+window.deleteExercisePhoto = (exId) => { if(confirm("Удалить фото?")) { delete exercisePhotos[exId]; saveAll(); render(); } };
 window.addMeasure = (key, name) => {
     let val = parseFloat(prompt(`${name} (см):`));
     if(!isNaN(val)) {
@@ -579,7 +465,7 @@ window.viewPhoto = (url) => {
     modal.innerHTML = `<img src="${url}" style="max-width:90%;max-height:70%;border-radius:20px;"><button onclick="this.parentElement.remove()" style="margin-top:20px;background:#ffb347;padding:10px 20px;border-radius:40px;">Закрыть</button>`;
     document.body.appendChild(modal);
 };
-window.deletePhoto = (id) => { photos = photos.filter(p => p.id != id); saveAll(); render(); };
+window.deletePhoto = (idx) => { photos.splice(idx,1); saveAll(); render(); };
 window.deleteCustomEx = (idx) => { customExercises.splice(idx,1); saveAll(); render(); };
 
 document.getElementById("nav").addEventListener("click", (e) => {

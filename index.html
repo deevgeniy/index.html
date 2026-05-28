@@ -27,7 +27,7 @@
         .calendar-day.today { border: 2px solid #ffb347; background: #2a2f3c; }
         .photo-item { background: #1a1e28; border-radius: 20px; padding: 12px; margin-bottom: 16px; }
         .photo-img { width: 100%; max-height: 300px; object-fit: contain; border-radius: 16px; margin-top: 8px; cursor: pointer; background: #0a0c0f; }
-        .exercise-photo { width: 100%; max-height: 200px; object-fit: cover; border-radius: 16px; margin-top: 8px; cursor: pointer; }
+        .exercise-photo { width: 100%; max-height: 250px; object-fit: contain; border-radius: 16px; margin-top: 8px; cursor: pointer; background: #0a0c0f; }
         .metric-row { background: #1a1e28; border-radius: 40px; padding: 12px 16px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .progress-item { background: #1a1e28; border-radius: 20px; padding: 12px; margin-top: 12px; }
         hr { border-color: #2a2f38; margin: 12px 0; }
@@ -50,7 +50,7 @@
 </div>
 
 <script>
-// ==================== ТВОЯ ПРОГРАММА ТРЕНИРОВОК (ИЗ PDF) ====================
+// ==================== ПРОГРАММА ТРЕНИРОВОК ====================
 const PROGRAM = {
     1: { name: "День 1. Жимовый (грудь, плечи, трицепс)", exercises: [
         { name: "Жим в рычажном тренажере", sets: 4, rest: 150, id: "hammer", desc: "Сядьте в тренажер, спина и затылок плотно прижаты к опорам. Хват на ширине плеч. На выдохе выжмите вес вперед." },
@@ -82,13 +82,14 @@ const PROGRAM = {
     ]}
 };
 
-// ==================== ДАННЫЕ (LOCALSTORAGE) ====================
+// ==================== ХРАНИЛИЩЕ ====================
 let currentTab = "workout";
 let currentDay = 1;
 let currentExIndex = 0;
 let timer = null;
 let timerSec = 0;
 
+// Инициализация хранилищ
 let logs = JSON.parse(localStorage.getItem("gym_logs") || "{}");
 let workoutDays = JSON.parse(localStorage.getItem("gym_days") || "[]");
 let maxWeight = JSON.parse(localStorage.getItem("gym_max_weight") || "{}");
@@ -188,7 +189,7 @@ function renderWorkout() {
     if(exPhoto) {
         photoHtml = `<div style="margin-top:12px;">
             <img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')">
-            <button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c; width:100%">🗑️ Удалить фото</button>
+            <button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c; width:100%">🗑️ Удалить фото упражнения</button>
         </div>`;
     }
     
@@ -220,7 +221,7 @@ function renderWorkout() {
         <div style="background:#0f1219; border-radius:24px; padding:16px; border-left:3px solid #ffb347;">
             <div class="flex-between" style="flex-wrap:wrap; gap:10px; margin-bottom:8px;">
                 <div style="font-size:18px; font-weight:bold;">🏋️ ${ex.name}</div>
-                <div><button onclick="addPhotoToExercise('${ex.id}')" style="background:#2a2f3c;">📸 Добавить фото</button></div>
+                <div><button onclick="addPhotoToExercise('${ex.id}')" style="background:#2a2f3c;">📸 Добавить фото упражнения</button></div>
             </div>
             <div class="exercise-desc">📖 ${ex.desc}</div>
             ${photoHtml}
@@ -384,36 +385,25 @@ function renderWeight() {
 
 function renderPhotos() {
     let html = `<div class="card"><div class="section-title">📸 Фото прогресса — с датами</div><button class="btn-primary" id="addPhotoBtn">➕ Добавить фото прогресса</button></div>`;
+    
     if(photos.length === 0) {
-        html += `<div class="card" style="text-align:center; color:#8e96a6;">Нет фото. Добавьте первое!</div>`;
+        html += `<div class="card" style="text-align:center; color:#8e96a6;">Нет фото. Нажмите "Добавить фото прогресса"</div>`;
     }
+    
     for(let i=0; i<photos.length; i++) {
         let p = photos[i];
         html += `<div class="photo-item">
-            <div class="flex-between"><span>📅 ${p.date} ${p.comment ? '— ' + p.comment : ''}</span><button onclick="deletePhoto(${i})" style="background:#4a1e2c;">🗑️</button></div>
+            <div class="flex-between">
+                <span>📅 ${p.date} ${p.comment ? '— ' + p.comment : ''}</span>
+                <button onclick="deletePhoto(${i})" style="background:#4a1e2c;">🗑️</button>
+            </div>
             <img src="${p.data}" class="photo-img" onclick="viewPhoto('${p.data}')">
         </div>`;
     }
+    
     document.getElementById("app").innerHTML = html;
-    document.getElementById("addPhotoBtn")?.addEventListener("click",()=>{
-        let inp = document.createElement('input');
-        inp.type = 'file';
-        inp.accept = 'image/*';
-        inp.onchange = (e) => {
-            let f = e.target.files[0];
-            if(f) {
-                let r = new FileReader();
-                r.onload = (ev) => {
-                    let comment = prompt("Комментарий к фото:", "Мой прогресс");
-                    photos.push({ date: getToday(), comment: comment || "", data: ev.target.result });
-                    saveAll();
-                    render();
-                };
-                r.readAsDataURL(f);
-            }
-        };
-        inp.click();
-    });
+    
+    document.getElementById("addPhotoBtn")?.addEventListener("click", addPhoto);
 }
 
 function renderExercises() {
@@ -426,25 +416,15 @@ function renderExercises() {
             <div><small>${ex.sets} подходов, отдых ${ex.rest}с</small></div>`;
         if(exPhoto) {
             html += `<img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')" style="max-height:150px;">`;
-            html += `<button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c;">🗑️ Удалить фото</button>`;
+            html += `<button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c;">🗑️ Удалить фото упражнения</button>`;
         } else {
-            html += `<button onclick="addPhotoToExercise('${ex.id}')" style="margin-top:8px;">📸 Добавить фото</button>`;
+            html += `<button onclick="addPhotoToExercise('${ex.id}')" style="margin-top:8px;">📸 Добавить фото упражнения</button>`;
         }
         html += `</div>`;
     }
     html += `</div>`;
     document.getElementById("app").innerHTML = html;
-    document.getElementById("addExBtn")?.addEventListener("click",()=>{
-        let name = prompt("Название упражнения:");
-        if(!name) return;
-        let sets = parseInt(prompt("Количество подходов:", "3"));
-        let rest = parseInt(prompt("Отдых (секунд):", "90"));
-        if(name && sets) {
-            customExercises.push({ name: name, sets: sets, rest: rest || 90, id: "custom_"+Date.now() });
-            saveAll();
-            render();
-        }
-    });
+    document.getElementById("addExBtn")?.addEventListener("click", addCustomExercise);
 }
 
 function renderSettings() {
@@ -455,45 +435,86 @@ function renderSettings() {
         <hr>
         <p><small>📸 Фото упражнений и фото прогресса сохраняются отдельно.<br>💪 Тренировки автоматически отмечаются в календаре.<br>📅 Сегодняшняя дата подсвечивается в календаре.</small></p>
     </div>`;
-    document.getElementById("resetBtn")?.addEventListener("click",()=>{
-        if(confirm("Удалить абсолютно всё? Восстановить будет нельзя.")) {
-            localStorage.clear();
-            location.reload();
-        }
-    });
+    document.getElementById("resetBtn")?.addEventListener("click", resetAll);
 }
 
-// ==================== ГЛОБАЛЬНЫЕ ФУНКЦИИ ====================
+// ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
+function addPhoto() {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+        let file = e.target.files[0];
+        if(file) {
+            let reader = new FileReader();
+            reader.onload = (ev) => {
+                let comment = prompt("Комментарий к фото:", "Мой прогресс");
+                photos.push({
+                    date: getToday(),
+                    comment: comment || "",
+                    data: ev.target.result
+                });
+                saveAll();
+                render();
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    input.click();
+}
+
+function addCustomExercise() {
+    let name = prompt("Название упражнения:");
+    if(!name) return;
+    let sets = parseInt(prompt("Количество подходов:", "3"));
+    let rest = parseInt(prompt("Отдых (секунд):", "90"));
+    if(name && sets) {
+        customExercises.push({ 
+            name: name, 
+            sets: sets, 
+            rest: rest || 90, 
+            id: "custom_" + Date.now() 
+        });
+        saveAll();
+        render();
+    }
+}
+
+function resetAll() {
+    if(confirm("Удалить абсолютно всё? Восстановить будет нельзя.")) {
+        localStorage.clear();
+        location.reload();
+    }
+}
+
+// ==================== ГЛОБАЛЬНЫЕ ФУНКЦИИ ДЛЯ ONCLICK ====================
 window.stopTimer = stopTimer;
 window.startTimer = startTimer;
-
 window.addPhotoToExercise = (exId) => {
-    let inp = document.createElement('input');
-    inp.type = 'file';
-    inp.accept = 'image/*';
-    inp.onchange = (e) => {
-        let f = e.target.files[0];
-        if(f) {
-            let r = new FileReader();
-            r.onload = (ev) => {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+        let file = e.target.files[0];
+        if(file) {
+            let reader = new FileReader();
+            reader.onload = (ev) => {
                 exercisePhotos[exId] = ev.target.result;
                 saveAll();
                 render();
             };
-            r.readAsDataURL(f);
+            reader.readAsDataURL(file);
         }
     };
-    inp.click();
+    input.click();
 };
-
 window.deleteExercisePhoto = (exId) => {
-    if(confirm("Удалить фото?")) {
+    if(confirm("Удалить фото упражнения?")) {
         delete exercisePhotos[exId];
         saveAll();
         render();
     }
 };
-
 window.addMeasure = (key, name) => {
     let val = parseFloat(prompt(`${name} (см):`));
     if(!isNaN(val)) {
@@ -502,7 +523,6 @@ window.addMeasure = (key, name) => {
         render();
     }
 };
-
 window.addWeight = () => {
     let w = parseFloat(prompt("Вес (кг):"));
     if(!isNaN(w)) {
@@ -511,26 +531,28 @@ window.addWeight = () => {
         render();
     }
 };
-
 window.viewPhoto = (url) => {
     let modal = document.createElement('div');
     modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;flex-direction:column;';
-    modal.innerHTML = `<img src="${url}" style="max-width:90%;max-height:70%;border-radius:20px;"><button onclick="this.parentElement.remove()" style="margin-top:20px;background:#ffb347;padding:10px 20px;border-radius:40px;">Закрыть</button>`;
+    modal.innerHTML = `<img src="${url}" style="max-width:90%;max-height:80%;object-fit:contain;border-radius:20px;"><button onclick="this.parentElement.remove()" style="margin-top:20px;background:#ffb347;padding:10px 20px;border-radius:40px;">Закрыть</button>`;
     document.body.appendChild(modal);
 };
-
 window.deletePhoto = (idx) => {
-    photos.splice(idx,1);
-    saveAll();
-    render();
+    if(confirm("Удалить фото?")) {
+        photos.splice(idx, 1);
+        saveAll();
+        render();
+    }
 };
-
 window.deleteCustomEx = (idx) => {
-    customExercises.splice(idx,1);
-    saveAll();
-    render();
+    if(confirm("Удалить упражнение?")) {
+        customExercises.splice(idx, 1);
+        saveAll();
+        render();
+    }
 };
 
+// ==================== ЗАПУСК ====================
 document.getElementById("nav").addEventListener("click", (e) => {
     let btn = e.target.closest(".nav-btn");
     if(btn && btn.dataset.tab) {

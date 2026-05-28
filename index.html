@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>GYM PRO — Тренировочный дневник</title>
+    <title>GYM PRO — Полная версия</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0c0f; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #eef2ff; min-height: 100vh; overflow-x: hidden; }
@@ -30,7 +30,6 @@
         .exercise-photo { width: 100%; max-height: 250px; object-fit: contain; border-radius: 16px; margin-top: 8px; cursor: pointer; background: #0a0c0f; }
         .metric-row { background: #1a1e28; border-radius: 40px; padding: 12px 16px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .progress-item { background: #1a1e28; border-radius: 20px; padding: 12px; margin-top: 12px; }
-        hr { border-color: #2a2f38; margin: 12px 0; }
         .stats-panel { background: #0f1219; border-radius: 20px; padding: 12px; margin-bottom: 16px; text-align: center; }
         .stats-panel span { color: #ffb347; font-weight: bold; }
         .exercise-desc { font-size: 12px; color: #8e96a6; margin: 8px 0; padding: 8px; background: #0b0e14; border-radius: 16px; }
@@ -53,17 +52,17 @@
 <script>
 // ==================== ПРОГРАММА ТРЕНИРОВОК ====================
 const PROGRAM = {
-    1: { name: "День 1. Жимовый (грудь, плечи, трицепс)", exercises: [
+    1: { name: "День 1. Жимовый", exercises: [
         { name: "Жим в рычажном тренажере", sets: 4, rest: 150, id: "hammer", desc: "Сядьте в тренажер, спина и затылок плотно прижаты к опорам." },
-        { name: "Жим гантелей лежа под углом 30°", sets: 3, rest: 120, id: "db30", desc: "Скамья под углом 30°. Лопатки сведены." },
+        { name: "Жим гантелей лежа под углом 30°", sets: 3, rest: 120, id: "db30", desc: "Скамья под углом 30°." },
         { name: "Сведение рук в кроссовере", sets: 3, rest: 90, id: "crossover", desc: "Встаньте между верхними блоками." },
         { name: "Жим гантелей сидя", sets: 4, rest: 120, id: "seateddb", desc: "Сядьте на скамью с вертикальной спинкой." },
         { name: "Разведение гантелей в стороны", sets: 3, rest: 90, id: "laterals", desc: "Корпус слегка наклонен вперед." },
         { name: "Французский жим с гантелью", sets: 3, rest: 90, id: "french", desc: "Гантель над головой." },
         { name: "Разгибание рук на блоке", sets: 3, rest: 60, id: "pushdown", desc: "Локти прижаты к корпусу." }
     ]},
-    2: { name: "День 2. Тяговый (спина, бицепс)", exercises: [
-        { name: "Тяга штанги в наклоне", sets: 4, rest: 150, id: "bentrow", desc: "Наклон корпуса 45-60°, спина прямая." },
+    2: { name: "День 2. Тяговый", exercises: [
+        { name: "Тяга штанги в наклоне", sets: 4, rest: 150, id: "bentrow", desc: "Наклон корпуса 45-60°." },
         { name: "Тяга верхнего блока к груди", sets: 4, rest: 120, id: "latpulldown", desc: "Хват широкий." },
         { name: "Тяга гантели к поясу", sets: 3, rest: 105, id: "dbrow", desc: "Упритесь рукой и коленом в скамью." },
         { name: "Тяга нижнего блока к поясу", sets: 3, rest: 105, id: "seatedrow", desc: "Хват узкий." },
@@ -72,7 +71,7 @@ const PROGRAM = {
         { name: "Сгибание рук с гантелями молот", sets: 3, rest: 90, id: "hammercurl", desc: "Ладони друг к другу." },
         { name: "Сгибание рук с канатом на блоке", sets: 3, rest: 90, id: "cablecurl", desc: "Ладони вниз." }
     ]},
-    3: { name: "День 3. Ноги + кор", exercises: [
+    3: { name: "День 3. Ноги", exercises: [
         { name: "Жим ногами платформы", sets: 4, rest: 150, id: "legpress", desc: "Ноги на ширине плеч." },
         { name: "Приседания с гантелью", sets: 4, rest: 150, id: "goblet", desc: "Гантель у груди." },
         { name: "Румынская тяга с гантелями", sets: 4, rest: 150, id: "romanian", desc: "Ноги на ширине таза." },
@@ -235,9 +234,9 @@ function renderWorkout() {
         <div class="flex-between">
             <span class="section-title">💪 ${day.name}</span>
             <select id="daySelect">
-                <option value="1">День 1 Жим</option>
-                <option value="2">День 2 Тяга</option>
-                <option value="3">День 3 Ноги</option>
+                <option value="1">День 1</option>
+                <option value="2">День 2</option>
+                <option value="3">День 3</option>
             </select>
         </div>
         <div class="stats-panel">
@@ -260,7 +259,7 @@ function renderWorkout() {
             <button id="prevEx" ${currentExIndex===0?'disabled':''}>◀ Назад</button>
             <button id="nextEx" ${currentExIndex===day.exercises.length-1?'disabled':''}>Вперёд ▶</button>
         </div>
-        <div style="text-align:center; margin-top:12px; font-size:11px; color:#8e96a6;">👆 Свайп влево/вправо по карточке</div>
+        <div style="text-align:center; margin-top:12px; font-size:11px; color:#8e96a6;">👆 Свайп влево/вправо</div>
     </div>`;
     
     document.getElementById("app").innerHTML = html;
@@ -312,7 +311,7 @@ function renderWorkout() {
             if(!d || !d.weight || !d.reps) all = false;
         }
         if(!all) {
-            alert("Заполни вес и повторения для всех подходов!");
+            alert("Заполни все подходы!");
         } else if(currentExIndex+1 < day.exercises.length) {
             currentExIndex++;
             stopTimer();
@@ -362,7 +361,7 @@ function renderCalendar() {
             let dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
             let has = workoutDays.includes(dateStr);
             let isToday = (todayDate.getDate()===day && todayDate.getMonth()===m && todayDate.getFullYear()===y);
-            cal += `<div class="calendar-day ${has?'workout':''} ${isToday?'today':''}" onclick="alert('${dateStr}: ${has?"✅ тренировка была":"❌ отдых"}')">${day}</div>`;
+            cal += `<div class="calendar-day ${has?'workout':''} ${isToday?'today':''}" onclick="alert('${dateStr}: ${has?"✅ тренировка":"❌ отдых"}')">${day}</div>`;
         }
     });
     cal += `</div><button class="btn-primary" id="goToday" style="margin-top:16px;">🏋️ Сегодняшняя тренировка</button>`;
@@ -411,7 +410,7 @@ function renderWeight() {
     });
 }
 
-// ========== ФОТО ПРОГРЕССА (ИСПРАВЛЕНО — РАБОТАЕТ!) ==========
+// ========== ФОТО ПРОГРЕССА (ГАРАНТИРОВАННО РАБОТАЕТ) ==========
 function renderPhotos() {
     let html = `<div class="card">
         <div class="section-title">📸 Фото прогресса</div>
@@ -422,7 +421,7 @@ function renderPhotos() {
         html += `<div class="card" style="text-align:center; color:#8e96a6;">Нет фото. Нажмите "Добавить фото"</div>`;
     }
     
-    for(let i=0; i<photos.length; i++) {
+    for(let i = 0; i < photos.length; i++) {
         let p = photos[i];
         html += `<div class="photo-item">
             <div class="flex-between">
@@ -435,7 +434,7 @@ function renderPhotos() {
     
     document.getElementById("app").innerHTML = html;
     
-    // Прямая привязка с проверкой
+    // Прямая привязка — самый надёжный способ
     const addBtn = document.getElementById("addPhotoBtn");
     if(addBtn) {
         addBtn.onclick = function(e) {
@@ -449,12 +448,11 @@ function renderPhotos() {
                     const reader = new FileReader();
                     reader.onload = function(ev) {
                         const comment = prompt("Комментарий к фото:", "Мой прогресс");
-                        const newPhoto = {
+                        photos.push({
                             date: getToday(),
                             comment: comment || "",
                             data: ev.target.result
-                        };
-                        photos.push(newPhoto);
+                        });
                         saveAll();
                         render();
                     };

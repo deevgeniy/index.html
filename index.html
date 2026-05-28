@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>GYM PRO — Твой дневник</title>
+    <title>GYM PRO — Твоя программа</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: #0a0c0f; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #eef2ff; padding-bottom: 80px; }
+        body { background: #0a0c0f; font-family: system-ui, sans-serif; color: #eef2ff; padding-bottom: 80px; }
         .app-container { max-width: 600px; margin: 0 auto; padding: 20px 16px 90px; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 600px; margin: 0 auto; background: #111417e6; backdrop-filter: blur(20px); display: flex; justify-content: space-around; flex-wrap: wrap; padding: 8px 8px 20px; border-top: 0.5px solid #2a2f38; z-index: 100; }
-        .nav-btn { background: none; border: none; color: #8e96a6; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 10px; border-radius: 40px; cursor: pointer; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 600px; margin: 0 auto; background: #111417e6; backdrop-filter: blur(20px); display: flex; justify-content: space-around; flex-wrap: wrap; padding: 8px 8px 20px; border-top: 1px solid #2a2f38; z-index: 100; }
+        .nav-btn { background: none; border: none; color: #8e96a6; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 8px; border-radius: 40px; cursor: pointer; }
         .nav-btn.active { color: #ffb347; background: #1e1f2c; }
         .card { background: #12151c; border-radius: 28px; padding: 18px 16px; margin-bottom: 20px; border: 1px solid #262c34; }
         .section-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .set-row { background: #1a1e28; border-radius: 20px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        input, select, textarea { background: #0b0e14; border: none; color: white; padding: 10px; border-radius: 20px; }
+        input, select { background: #0b0e14; border: none; color: white; padding: 10px; border-radius: 20px; }
         input { width: 70px; text-align: center; }
         button { background: #2a2f3c; border: none; padding: 8px 14px; border-radius: 40px; color: white; cursor: pointer; }
         .btn-primary { background: #ffb347; color: #0a0c0f; font-weight: bold; width: 100%; padding: 12px; }
@@ -44,25 +44,45 @@
 </div>
 
 <script>
-// ==================== БАЗОВЫЕ УПРАЖНЕНИЯ ====================
-const defaultExercises = [
-    { id: "bench", name: "Жим лёжа", day: 1, sets: 4, rest: 120, desc: "Лягте на скамью, возьмите штангу хватом чуть шире плеч. Опустите к груди, выжмите вверх." },
-    { id: "incline", name: "Жим на наклонной", day: 1, sets: 3, rest: 120, desc: "Скамья под углом 30-45°. Техника как у жима лёжа." },
-    { id: "fly", name: "Разводка гантелей", day: 1, sets: 3, rest: 90, desc: "Лёжа на скамье, руки с гантелями в стороны, локти чуть согнуты." },
-    { id: "row", name: "Тяга штанги", day: 2, sets: 4, rest: 120, desc: "Наклон корпуса 45°, тяните штангу к животу, сводя лопатки." },
-    { id: "lat", name: "Тяга верхнего блока", day: 2, sets: 4, rest: 120, desc: "Хват широкий, тяните гриф к груди, корпус неподвижен." },
-    { id: "curl", name: "Сгибания рук со штангой", day: 2, sets: 3, rest: 90, desc: "Локти прижаты к корпусу, поднимайте штангу к плечам." },
-    { id: "squat", name: "Приседания", day: 3, sets: 4, rest: 150, desc: "Спина прямая, опускайтесь до параллели бедра с полом." },
-    { id: "legpress", name: "Жим ногами", day: 3, sets: 4, rest: 150, desc: "Ноги на платформе на ширине плеч, опускайте платформу до угла 90°." },
-    { id: "rdl", name: "Румынская тяга", day: 3, sets: 3, rest: 120, desc: "Ноги чуть согнуты, наклоняйтесь вперёд, отводя таз назад." }
-];
+// ==================== ТВОЯ ПРОГРАММА ИЗ PDF (НЕ МЕНЯТЬ!) ====================
+const PROGRAM = {
+    1: { name: "День 1. Жимовый (грудь, плечи, трицепс)", exercises: [
+        { name: "Жим в рычажном тренажере (Hammer Strength)", sets: 4, rest: 150, id: "hammer", desc: "Сядьте в тренажер, спина и затылок плотно прижаты к опорам. Хват на ширине плеч. На выдохе выжмите вес вперед." },
+        { name: "Жим гантелей лежа под углом 30°", sets: 3, rest: 120, id: "db30", desc: "Скамья под углом 30°. Лопатки сведены. На вдохе опустите гантели к верху груди." },
+        { name: "Сведение рук в кроссовере", sets: 3, rest: 90, id: "crossover", desc: "Встаньте между верхними блоками. На выдохе сведите руки перед собой." },
+        { name: "Жим гантелей сидя (ладони друг к другу)", sets: 4, rest: 120, id: "seateddb", desc: "Сядьте на скамью с вертикальной спинкой. Выжмите вверх по дуге." },
+        { name: "Разведение гантелей в стороны стоя", sets: 3, rest: 90, id: "laterals", desc: "Корпус слегка наклонен вперед. Поднимите руки через стороны до уровня плеч." },
+        { name: "Французский жим с гантелью сидя", sets: 3, rest: 90, id: "french", desc: "Гантель над головой. Согните руку, опуская гантель за голову." },
+        { name: "Разгибание рук на блоке (канат)", sets: 3, rest: 60, id: "pushdown", desc: "Локти прижаты к корпусу. Разогните руки вниз." }
+    ]},
+    2: { name: "День 2. Тяговый (спина, бицепс)", exercises: [
+        { name: "Тяга штанги в наклоне", sets: 4, rest: 150, id: "bentrow", desc: "Наклон корпуса 45-60°, спина прямая. Тяните штангу к животу." },
+        { name: "Тяга верхнего блока к груди широким хватом", sets: 4, rest: 120, id: "latpulldown", desc: "Хват широкий. Тяните гриф к ключицам." },
+        { name: "Тяга гантели к поясу (с упором в скамью)", sets: 3, rest: 105, id: "dbrow", desc: "Упритесь рукой и коленом в скамью. Тяните гантель к поясу." },
+        { name: "Тяга нижнего блока к поясу (узкий хват)", sets: 3, rest: 105, id: "seatedrow", desc: "Хват узкий. Тяните рукоять к поясу." },
+        { name: "Разведение гантелей в наклоне (задняя дельта)", sets: 3, rest: 90, id: "reardelt", desc: "Наклон до параллели с полом. Разведите руки в стороны." },
+        { name: "Сгибание рук со штангой EZ стоя", sets: 3, rest: 90, id: "ezcurl", desc: "Локти прижаты к корпусу. Согните руки, поднимая гриф." },
+        { name: "Сгибание рук с гантелями (молот) стоя", sets: 3, rest: 90, id: "hammercurl", desc: "Ладони друг к другу. Согните руки, поднимая гантели." },
+        { name: "Сгибание рук с канатом на нижнем блоке", sets: 3, rest: 90, id: "cablecurl", desc: "Ладони вниз. Согните руки, поднимая канат." }
+    ]},
+    3: { name: "День 3. Ноги + кор", exercises: [
+        { name: "Жим ногами платформы", sets: 4, rest: 150, id: "legpress", desc: "Ноги на ширине плеч на середине платформы. Опускайте до угла 90°." },
+        { name: "Приседания с гантелью перед собой (Goblet squat)", sets: 4, rest: 150, id: "goblet", desc: "Гантель вертикально у груди. Приседайте, отводя таз назад." },
+        { name: "Румынская тяга с гантелями", sets: 4, rest: 150, id: "romanian", desc: "Ноги на ширине таза. Опускайте корпус, скользя гантелями по голеням." },
+        { name: "Сгибание ног лежа", sets: 3, rest: 105, id: "legcurl", desc: "Валики на задней поверхности голеней. Согните ноги, приводя пятки к ягодицам." },
+        { name: "Разгибание ног сидя", sets: 3, rest: 105, id: "legext", desc: "Валики на передней поверхности голеней. Разогните ноги." },
+        { name: "Скручивания на римском стуле", sets: 3, rest: 90, id: "crunch", desc: "Ноги зафиксированы. Скручивайте корпус, поднимая грудь к тазу." },
+        { name: "Гиперэкстензия с округлением спины", sets: 3, rest: 90, id: "hyper", desc: "Округлите спину на вдохе, на выдохе поднимитесь до прямой линии." }
+    ]}
+};
 
-// ==================== ЗАГРУЗКА ДАННЫХ ====================
+// ==================== ЗАГРУЗКА ПОЛЬЗОВАТЕЛЬСКИХ УПРАЖНЕНИЙ ====================
 let customExercises = JSON.parse(localStorage.getItem("custom_exercises") || "[]");
-let allExercises = [...defaultExercises, ...customExercises];
 
-function getExercisesByDay(day) {
-    return allExercises.filter(ex => ex.day === day);
+function getAllExercises(day) {
+    let dayEx = [...PROGRAM[day].exercises];
+    let customForDay = customExercises.filter(ex => ex.day === day);
+    return [...dayEx, ...customForDay];
 }
 
 // ==================== ОСНОВНЫЕ ДАННЫЕ ====================
@@ -141,8 +161,7 @@ function getMaxRepsLastWeek(exId) {
 let touchStartX = 0, touchEndX = 0;
 function handleSwipe() {
     if(currentTab !== "workout") return;
-    let dayExercises = getExercisesByDay(currentDay);
-    if(dayExercises.length === 0) return;
+    let dayExercises = getAllExercises(currentDay);
     if(touchEndX < touchStartX - 50) {
         if(currentExIndex + 1 < dayExercises.length) {
             currentExIndex++;
@@ -177,7 +196,7 @@ function render() {
 }
 
 function renderWorkout() {
-    let dayExercises = getExercisesByDay(currentDay);
+    let dayExercises = getAllExercises(currentDay);
     if(dayExercises.length === 0) {
         document.getElementById("app").innerHTML = `<div class="card"><div class="section-title">Нет упражнений на день ${currentDay}</div><button class="btn-primary" onclick="currentTab='exercises'; render()">➕ Добавить упражнения</button></div>`;
         return;
@@ -210,7 +229,7 @@ function renderWorkout() {
     }
     
     let html = `<div class="card swipe-area" id="swipeArea">
-        <div class="flex-between"><span class="section-title">День ${currentDay}</span>
+        <div class="flex-between"><span class="section-title">${PROGRAM[currentDay].name}</span>
         <select id="daySelect"><option value="1">День 1</option><option value="2">День 2</option><option value="3">День 3</option></select></div>
         <div class="stats-panel">📊 <strong>ТВОИ РЕКОРДЫ</strong><br>🏆 Макс. вес: ${bestW} кг (неделю назад: ${lastWeekW} кг)<br>🏆 Макс. повторения: ${bestR} (неделю назад: ${lastWeekR})</div>
         <div style="background:#0f1219; border-radius:24px; padding:16px;">
@@ -260,12 +279,21 @@ function renderWorkout() {
 
 function renderProgress() {
     let html = `<div class="card"><div class="section-title">📊 Прогресс по упражнениям</div>`;
-    for(let ex of allExercises) {
+    for(let day of [1,2,3]) {
+        for(let ex of PROGRAM[day].exercises) {
+            let bestW = maxWeight[ex.id] || 0;
+            let bestR = maxReps[ex.id] || 0;
+            let lastWeekW = getMaxWeightLastWeek(ex.id);
+            let lastWeekR = getMaxRepsLastWeek(ex.id);
+            html += `<div class="exercise-item"><div><strong>${ex.name}</strong></div><div class="flex-between"><span>🏆 макс. вес:</span><span>${bestW} кг (неделю назад: ${lastWeekW} кг)</span></div><div class="flex-between"><span>🏆 макс. повторения:</span><span>${bestR} (неделю назад: ${lastWeekR})</span></div></div>`;
+        }
+    }
+    for(let ex of customExercises) {
         let bestW = maxWeight[ex.id] || 0;
         let bestR = maxReps[ex.id] || 0;
         let lastWeekW = getMaxWeightLastWeek(ex.id);
         let lastWeekR = getMaxRepsLastWeek(ex.id);
-        html += `<div class="exercise-item"><div><strong>${ex.name}</strong></div><div class="flex-between"><span>🏆 макс. вес:</span><span>${bestW} кг (неделю назад: ${lastWeekW} кг)</span></div><div class="flex-between"><span>🏆 макс. повторения:</span><span>${bestR} (неделю назад: ${lastWeekR})</span></div></div>`;
+        html += `<div class="exercise-item"><div><strong>${ex.name}</strong> ✏️</div><div class="flex-between"><span>🏆 макс. вес:</span><span>${bestW} кг (неделю назад: ${lastWeekW} кг)</span></div><div class="flex-between"><span>🏆 макс. повторения:</span><span>${bestR} (неделю назад: ${lastWeekR})</span></div></div>`;
     }
     html += `</div>`;
     document.getElementById("app").innerHTML = html;
@@ -351,23 +379,38 @@ function deleteProgressPhoto(idx) {
     if(confirm("Удалить фото?")) { progressPhotos.splice(idx,1); saveAll(); render(); }
 }
 
-// ========== УПРАЖНЕНИЯ ==========
+// ========== УПРАЖНЕНИЯ (ДОБАВЛЕНИЕ СВОИХ) ==========
 function renderExercises() {
-    let html = `<div class="card"><div class="section-title">📝 Мои упражнения</div><button class="btn-primary" id="addExerciseBtn">➕ Добавить упражнение</button></div>`;
-    for(let ex of allExercises) {
-        let isCustom = customExercises.some(c => c.id === ex.id);
-        let exPhoto = exercisePhotos[ex.id];
-        html += `<div class="exercise-item">
-            <div class="flex-between"><strong>${ex.name}</strong>${isCustom ? `<button onclick="deleteCustomExercise('${ex.id}')" style="background:#4a1e2c;">🗑️</button>` : ''}</div>
-            <div>День ${ex.day} | ${ex.sets} подходов | Отдых ${ex.rest}с</div>
-            <div style="font-size:12px; color:#8e96a6;">📖 ${ex.desc}</div>`;
-        if(exPhoto) {
-            html += `<img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')"><button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c;">🗑️ Удалить фото</button>`;
-        } else {
-            html += `<button onclick="addPhotoToExercise('${ex.id}')" style="margin-top:8px;">📸 Добавить фото</button>`;
+    let html = `<div class="card"><div class="section-title">📝 Мои упражнения</div><button class="btn-primary" id="addExerciseBtn">➕ Добавить своё упражнение</button></div>`;
+    
+    for(let day of [1,2,3]) {
+        html += `<div style="margin-top:16px;"><strong>${PROGRAM[day].name}</strong></div>`;
+        for(let ex of PROGRAM[day].exercises) {
+            let exPhoto = exercisePhotos[ex.id];
+            html += `<div class="exercise-item"><div class="flex-between"><strong>${ex.name}</strong></div><div>${ex.sets} подходов | Отдых ${ex.rest}с</div><div style="font-size:12px; color:#8e96a6;">📖 ${ex.desc}</div>`;
+            if(exPhoto) {
+                html += `<img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')"><button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c;">🗑️ Удалить фото</button>`;
+            } else {
+                html += `<button onclick="addPhotoToExercise('${ex.id}')" style="margin-top:8px;">📸 Добавить фото</button>`;
+            }
+            html += `</div>`;
         }
-        html += `</div>`;
     }
+    
+    if(customExercises.length > 0) {
+        html += `<div style="margin-top:16px;"><strong>⚡ МОИ ДОБАВЛЕННЫЕ УПРАЖНЕНИЯ</strong></div>`;
+        for(let ex of customExercises) {
+            let exPhoto = exercisePhotos[ex.id];
+            html += `<div class="exercise-item"><div class="flex-between"><strong>${ex.name}</strong><button onclick="deleteCustomExercise('${ex.id}')" style="background:#4a1e2c;">🗑️</button></div><div>День ${ex.day} | ${ex.sets} подходов | Отдых ${ex.rest}с</div><div style="font-size:12px; color:#8e96a6;">📖 ${ex.desc}</div>`;
+            if(exPhoto) {
+                html += `<img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')"><button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c;">🗑️ Удалить фото</button>`;
+            } else {
+                html += `<button onclick="addPhotoToExercise('${ex.id}')" style="margin-top:8px;">📸 Добавить фото</button>`;
+            }
+            html += `</div>`;
+        }
+    }
+    
     document.getElementById("app").innerHTML = html;
     document.getElementById("addExerciseBtn")?.addEventListener("click", addCustomExercise);
 }
@@ -375,7 +418,7 @@ function renderExercises() {
 function addCustomExercise() {
     let name = prompt("Название упражнения:");
     if(!name) return;
-    let day = parseInt(prompt("День тренировки (1, 2 или 3):", "1"));
+    let day = parseInt(prompt("В какой день добавить? (1, 2 или 3):", "1"));
     if(isNaN(day) || day < 1 || day > 3) day = 1;
     let sets = parseInt(prompt("Количество подходов:", "3"));
     if(isNaN(sets)) sets = 3;
@@ -384,7 +427,6 @@ function addCustomExercise() {
     let desc = prompt("Описание/техника выполнения:", "");
     let id = "custom_" + Date.now();
     customExercises.push({ id, name, day, sets, rest, desc });
-    allExercises = [...defaultExercises, ...customExercises];
     saveAll();
     render();
 }
@@ -392,7 +434,6 @@ function addCustomExercise() {
 function deleteCustomExercise(id) {
     if(confirm("Удалить упражнение?")) {
         customExercises = customExercises.filter(ex => ex.id !== id);
-        allExercises = [...defaultExercises, ...customExercises];
         saveAll();
         render();
     }

@@ -53,32 +53,32 @@
 // ==================== ПРОГРАММА ТРЕНИРОВОК ====================
 const PROGRAM = {
     1: { name: "День 1. Жимовый (грудь, плечи, трицепс)", exercises: [
-        { name: "Жим в рычажном тренажере", sets: 4, rest: 150, id: "hammer", desc: "Сядьте в тренажер, спина и затылок плотно прижаты к опорам. Хват на ширине плеч. На выдохе выжмите вес вперед." },
-        { name: "Жим гантелей лежа под углом 30°", sets: 3, rest: 120, id: "db30", desc: "Скамья под углом 30°. Лопатки сведены. На вдохе опустите гантели к верху груди." },
-        { name: "Сведение рук в кроссовере", sets: 3, rest: 90, id: "crossover", desc: "Встаньте между верхними блоками. На выдохе сведите руки перед собой." },
-        { name: "Жим гантелей сидя", sets: 4, rest: 120, id: "seateddb", desc: "Сядьте на скамью с вертикальной спинкой. Выжмите вверх по дуге." },
-        { name: "Разведение гантелей в стороны", sets: 3, rest: 90, id: "laterals", desc: "Корпус слегка наклонен вперед. Поднимите руки через стороны до уровня плеч." },
-        { name: "Французский жим с гантелью", sets: 3, rest: 90, id: "french", desc: "Гантель над головой. Согните руку, опуская гантель за голову." },
-        { name: "Разгибание рук на блоке", sets: 3, rest: 60, id: "pushdown", desc: "Локти прижаты к корпусу. Разогните руки вниз." }
+        { name: "Жим в рычажном тренажере", sets: 4, rest: 150, id: "hammer", desc: "Сядьте в тренажер, спина и затылок плотно прижаты к опорам." },
+        { name: "Жим гантелей лежа под углом 30°", sets: 3, rest: 120, id: "db30", desc: "Скамья под углом 30°. Лопатки сведены." },
+        { name: "Сведение рук в кроссовере", sets: 3, rest: 90, id: "crossover", desc: "Встаньте между верхними блоками." },
+        { name: "Жим гантелей сидя", sets: 4, rest: 120, id: "seateddb", desc: "Сядьте на скамью с вертикальной спинкой." },
+        { name: "Разведение гантелей в стороны", sets: 3, rest: 90, id: "laterals", desc: "Корпус слегка наклонен вперед." },
+        { name: "Французский жим с гантелью", sets: 3, rest: 90, id: "french", desc: "Гантель над головой." },
+        { name: "Разгибание рук на блоке", sets: 3, rest: 60, id: "pushdown", desc: "Локти прижаты к корпусу." }
     ]},
     2: { name: "День 2. Тяговый (спина, бицепс)", exercises: [
-        { name: "Тяга штанги в наклоне", sets: 4, rest: 150, id: "bentrow", desc: "Наклон корпуса 45-60°, спина прямая. Тяните штангу к животу." },
-        { name: "Тяга верхнего блока к груди", sets: 4, rest: 120, id: "latpulldown", desc: "Хват широкий. Тяните гриф к ключицам." },
-        { name: "Тяга гантели к поясу", sets: 3, rest: 105, id: "dbrow", desc: "Упритесь рукой и коленом в скамью. Тяните гантель к поясу." },
-        { name: "Тяга нижнего блока к поясу", sets: 3, rest: 105, id: "seatedrow", desc: "Хват узкий. Тяните рукоять к поясу." },
-        { name: "Разведение гантелей в наклоне", sets: 3, rest: 90, id: "reardelt", desc: "Наклон до параллели с полом. Разведите руки в стороны." },
-        { name: "Сгибание рук со штангой EZ", sets: 3, rest: 90, id: "ezcurl", desc: "Локти прижаты к корпусу. Согните руки, поднимая гриф." },
-        { name: "Сгибание рук с гантелями молот", sets: 3, rest: 90, id: "hammercurl", desc: "Ладони друг к другу. Согните руки, поднимая гантели." },
-        { name: "Сгибание рук с канатом на блоке", sets: 3, rest: 90, id: "cablecurl", desc: "Ладони вниз. Согните руки, поднимая канат." }
+        { name: "Тяга штанги в наклоне", sets: 4, rest: 150, id: "bentrow", desc: "Наклон корпуса 45-60°, спина прямая." },
+        { name: "Тяга верхнего блока к груди", sets: 4, rest: 120, id: "latpulldown", desc: "Хват широкий." },
+        { name: "Тяга гантели к поясу", sets: 3, rest: 105, id: "dbrow", desc: "Упритесь рукой и коленом в скамью." },
+        { name: "Тяга нижнего блока к поясу", sets: 3, rest: 105, id: "seatedrow", desc: "Хват узкий." },
+        { name: "Разведение гантелей в наклоне", sets: 3, rest: 90, id: "reardelt", desc: "Наклон до параллели с полом." },
+        { name: "Сгибание рук со штангой EZ", sets: 3, rest: 90, id: "ezcurl", desc: "Локти прижаты к корпусу." },
+        { name: "Сгибание рук с гантелями молот", sets: 3, rest: 90, id: "hammercurl", desc: "Ладони друг к другу." },
+        { name: "Сгибание рук с канатом на блоке", sets: 3, rest: 90, id: "cablecurl", desc: "Ладони вниз." }
     ]},
     3: { name: "День 3. Ноги + кор", exercises: [
-        { name: "Жим ногами платформы", sets: 4, rest: 150, id: "legpress", desc: "Ноги на ширине плеч. Опускайте до угла 90°." },
-        { name: "Приседания с гантелью", sets: 4, rest: 150, id: "goblet", desc: "Гантель у груди. Приседайте до параллели." },
-        { name: "Румынская тяга с гантелями", sets: 4, rest: 150, id: "romanian", desc: "Ноги на ширине таза. Опускайте корпус, скользя гантелями по голеням." },
+        { name: "Жим ногами платформы", sets: 4, rest: 150, id: "legpress", desc: "Ноги на ширине плеч." },
+        { name: "Приседания с гантелью", sets: 4, rest: 150, id: "goblet", desc: "Гантель у груди." },
+        { name: "Румынская тяга с гантелями", sets: 4, rest: 150, id: "romanian", desc: "Ноги на ширине таза." },
         { name: "Сгибание ног лежа", sets: 3, rest: 105, id: "legcurl", desc: "Согните ноги, приводя пятки к ягодицам." },
-        { name: "Разгибание ног сидя", sets: 3, rest: 105, id: "legext", desc: "Разогните ноги, не выпрямляя до конца." },
-        { name: "Скручивания", sets: 3, rest: 90, id: "crunch", desc: "Скручивайте корпус, поднимая грудь к тазу." },
-        { name: "Гиперэкстензия", sets: 3, rest: 90, id: "hyper", desc: "Округлите спину, затем поднимитесь до прямой линии." }
+        { name: "Разгибание ног сидя", sets: 3, rest: 105, id: "legext", desc: "Разогните ноги." },
+        { name: "Скручивания", sets: 3, rest: 90, id: "crunch", desc: "Скручивайте корпус." },
+        { name: "Гиперэкстензия", sets: 3, rest: 90, id: "hyper", desc: "Округлите спину, затем поднимитесь." }
     ]}
 };
 
@@ -89,7 +89,6 @@ let currentExIndex = 0;
 let timer = null;
 let timerSec = 0;
 
-// Инициализация хранилищ
 let logs = JSON.parse(localStorage.getItem("gym_logs") || "{}");
 let workoutDays = JSON.parse(localStorage.getItem("gym_days") || "[]");
 let maxWeight = JSON.parse(localStorage.getItem("gym_max_weight") || "{}");
@@ -189,7 +188,7 @@ function renderWorkout() {
     if(exPhoto) {
         photoHtml = `<div style="margin-top:12px;">
             <img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')">
-            <button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c; width:100%">🗑️ Удалить фото упражнения</button>
+            <button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c; width:100%">🗑️ Удалить фото</button>
         </div>`;
     }
     
@@ -214,14 +213,14 @@ function renderWorkout() {
             </select>
         </div>
         <div class="stats-panel">
-            📊 <strong>ТВОИ РЕКОРДЫ В ЭТОМ УПРАЖНЕНИИ</strong><br>
-            🏆 Максимальный вес: <span>${bestW} кг</span> (неделю назад: ${lastWeekW} кг)<br>
-            🏆 Максимум повторений: <span>${bestR}</span> (неделю назад: ${lastWeekR})
+            📊 <strong>ТВОИ РЕКОРДЫ</strong><br>
+            🏆 Макс. вес: <span>${bestW} кг</span> (неделю назад: ${lastWeekW} кг)<br>
+            🏆 Макс. повторения: <span>${bestR}</span> (неделю назад: ${lastWeekR})
         </div>
         <div style="background:#0f1219; border-radius:24px; padding:16px; border-left:3px solid #ffb347;">
             <div class="flex-between" style="flex-wrap:wrap; gap:10px; margin-bottom:8px;">
                 <div style="font-size:18px; font-weight:bold;">🏋️ ${ex.name}</div>
-                <div><button onclick="addPhotoToExercise('${ex.id}')" style="background:#2a2f3c;">📸 Добавить фото упражнения</button></div>
+                <div><button onclick="addPhotoToExercise('${ex.id}')" style="background:#2a2f3c;">📸 Добавить фото</button></div>
             </div>
             <div class="exercise-desc">📖 ${ex.desc}</div>
             ${photoHtml}
@@ -267,7 +266,7 @@ function renderWorkout() {
             render();
         } else {
             markWorkout();
-            alert("🎉 Тренировка завершена! Молодец!");
+            alert("🎉 Тренировка завершена!");
         }
     };
     
@@ -333,25 +332,22 @@ function renderCalendar() {
     });
     cal += `</div><button class="btn-primary" id="goToday" style="margin-top:16px;">🏋️ Сегодняшняя тренировка</button>`;
     
-    document.getElementById("app").innerHTML = `<div class="card"><div class="section-title">📅 Календарь тренировок</div>${cal}</div>`;
+    document.getElementById("app").innerHTML = `<div class="card"><div class="section-title">📅 Календарь</div>${cal}</div>`;
     document.getElementById("goToday")?.addEventListener("click",()=>{ currentTab="workout"; render(); });
 }
 
 function renderMeasure() {
     let measures = {Грудь:"chest", Бицепс:"biceps", Талия:"waist", Бедро:"thigh"};
-    let html = `<div class="card"><div class="section-title">📏 Замеры тела (см) — с датами</div>`;
+    let html = `<div class="card"><div class="section-title">📏 Замеры тела (см)</div>`;
     for(let [name,key] of Object.entries(measures)) {
         let last = bodyMeasure[key][bodyMeasure[key].length-1] || null;
         html += `<div class="metric-row">
             <span>${name}</span>
             <span><strong>${last ? last.value + ' см (' + last.date + ')' : '—'}</strong></span>
-            <button onclick="addMeasure('${key}','${name}')">+ Записать</button>
+            <button onclick="addMeasure('${key}','${name}')">+</button>
         </div>`;
-        if(bodyMeasure[key].length > 0) {
-            html += `<div style="font-size:11px; color:#8e96a6; margin-left:16px; margin-bottom:8px;">📋 История: ${bodyMeasure[key].slice(-5).reverse().map(m=>`${m.date} ${m.value}см`).join(' | ')}</div>`;
-        }
     }
-    html += `<button class="btn-primary" id="measHistory">📊 Полная история замеров</button></div>`;
+    html += `<button class="btn-primary" id="measHistory">📊 История</button></div>`;
     document.getElementById("app").innerHTML = html;
     document.getElementById("measHistory")?.addEventListener("click",()=>{
         let msg="📏 История замеров:\n";
@@ -365,16 +361,13 @@ function renderMeasure() {
 
 function renderWeight() {
     let last = bodyWeight[bodyWeight.length-1] || null;
-    let html = `<div class="card"><div class="section-title">⚖️ Вес тела — с датами</div>
+    let html = `<div class="card"><div class="section-title">⚖️ Вес тела</div>
         <div class="metric-row">
             <span>Текущий вес:</span>
             <span><strong>${last ? last.weight + ' кг (' + last.date + ')' : '—'}</strong></span>
-            <button onclick="addWeight()">+ Записать</button>
-        </div>`;
-    if(bodyWeight.length > 0) {
-        html += `<div style="font-size:11px; color:#8e96a6; margin:8px 0;">📋 История: ${bodyWeight.slice(-5).reverse().map(w=>`${w.date} ${w.weight}кг`).join(' | ')}</div>`;
-    }
-    html += `<button class="btn-primary" id="weightHistory">📈 Полная история веса</button></div>`;
+            <button onclick="addWeight()">+</button>
+        </div>
+        <button class="btn-primary" id="weightHistory">📈 История</button></div>`;
     document.getElementById("app").innerHTML = html;
     document.getElementById("weightHistory")?.addEventListener("click",()=>{
         let msg="📈 История веса:\n";
@@ -383,11 +376,15 @@ function renderWeight() {
     });
 }
 
+// ========== ГЛАВНОЕ — ФОТО ПРОГРЕССА (ИСПРАВЛЕНО!) ==========
 function renderPhotos() {
-    let html = `<div class="card"><div class="section-title">📸 Фото прогресса — с датами</div><button class="btn-primary" id="addPhotoBtn">➕ Добавить фото прогресса</button></div>`;
+    let html = `<div class="card">
+        <div class="section-title">📸 Фото прогресса</div>
+        <button class="btn-primary" id="addPhotoBtn" style="margin-bottom:16px;">➕ Добавить фото</button>
+    </div>`;
     
     if(photos.length === 0) {
-        html += `<div class="card" style="text-align:center; color:#8e96a6;">Нет фото. Нажмите "Добавить фото прогресса"</div>`;
+        html += `<div class="card" style="text-align:center; color:#8e96a6;">Нет фото. Нажмите "Добавить фото"</div>`;
     }
     
     for(let i=0; i<photos.length; i++) {
@@ -403,7 +400,34 @@ function renderPhotos() {
     
     document.getElementById("app").innerHTML = html;
     
-    document.getElementById("addPhotoBtn")?.addEventListener("click", addPhoto);
+    // Прямая привязка события
+    let btn = document.getElementById("addPhotoBtn");
+    if(btn) {
+        btn.onclick = function() {
+            let input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                let file = e.target.files[0];
+                if(file) {
+                    let reader = new FileReader();
+                    reader.onload = function(ev) {
+                        let comment = prompt("Комментарий к фото:", "Мой прогресс");
+                        let newPhoto = {
+                            date: getToday(),
+                            comment: comment || "",
+                            data: ev.target.result
+                        };
+                        photos.push(newPhoto);
+                        saveAll();
+                        render();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        };
+    }
 }
 
 function renderExercises() {
@@ -415,79 +439,43 @@ function renderExercises() {
             <div class="flex-between"><strong>${ex.name}</strong><button onclick="deleteCustomEx(${i})" style="background:#4a1e2c;">🗑️</button></div>
             <div><small>${ex.sets} подходов, отдых ${ex.rest}с</small></div>`;
         if(exPhoto) {
-            html += `<img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')" style="max-height:150px;">`;
-            html += `<button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c;">🗑️ Удалить фото упражнения</button>`;
+            html += `<img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')">`;
+            html += `<button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c;">🗑️ Удалить фото</button>`;
         } else {
-            html += `<button onclick="addPhotoToExercise('${ex.id}')" style="margin-top:8px;">📸 Добавить фото упражнения</button>`;
+            html += `<button onclick="addPhotoToExercise('${ex.id}')" style="margin-top:8px;">📸 Добавить фото</button>`;
         }
         html += `</div>`;
     }
     html += `</div>`;
     document.getElementById("app").innerHTML = html;
-    document.getElementById("addExBtn")?.addEventListener("click", addCustomExercise);
+    document.getElementById("addExBtn")?.addEventListener("click", () => {
+        let name = prompt("Название упражнения:");
+        if(!name) return;
+        let sets = parseInt(prompt("Количество подходов:", "3"));
+        let rest = parseInt(prompt("Отдых (секунд):", "90"));
+        if(name && sets) {
+            customExercises.push({ name: name, sets: sets, rest: rest || 90, id: "custom_"+Date.now() });
+            saveAll();
+            render();
+        }
+    });
 }
 
 function renderSettings() {
     document.getElementById("app").innerHTML = `<div class="card">
         <div class="section-title">⚙️ Настройки</div>
         <button class="btn-primary" id="resetBtn" style="background:#4a1e2c;">🗑️ Сбросить ВСЕ данные</button>
-        <p style="margin-top:16px;">Все данные хранятся только на вашем устройстве (localStorage).</p>
-        <hr>
-        <p><small>📸 Фото упражнений и фото прогресса сохраняются отдельно.<br>💪 Тренировки автоматически отмечаются в календаре.<br>📅 Сегодняшняя дата подсвечивается в календаре.</small></p>
+        <p style="margin-top:16px;">Все данные хранятся в памяти телефона.</p>
     </div>`;
-    document.getElementById("resetBtn")?.addEventListener("click", resetAll);
-}
-
-// ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
-function addPhoto() {
-    let input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (e) => {
-        let file = e.target.files[0];
-        if(file) {
-            let reader = new FileReader();
-            reader.onload = (ev) => {
-                let comment = prompt("Комментарий к фото:", "Мой прогресс");
-                photos.push({
-                    date: getToday(),
-                    comment: comment || "",
-                    data: ev.target.result
-                });
-                saveAll();
-                render();
-            };
-            reader.readAsDataURL(file);
+    document.getElementById("resetBtn")?.addEventListener("click", () => {
+        if(confirm("Удалить всё?")) {
+            localStorage.clear();
+            location.reload();
         }
-    };
-    input.click();
+    });
 }
 
-function addCustomExercise() {
-    let name = prompt("Название упражнения:");
-    if(!name) return;
-    let sets = parseInt(prompt("Количество подходов:", "3"));
-    let rest = parseInt(prompt("Отдых (секунд):", "90"));
-    if(name && sets) {
-        customExercises.push({ 
-            name: name, 
-            sets: sets, 
-            rest: rest || 90, 
-            id: "custom_" + Date.now() 
-        });
-        saveAll();
-        render();
-    }
-}
-
-function resetAll() {
-    if(confirm("Удалить абсолютно всё? Восстановить будет нельзя.")) {
-        localStorage.clear();
-        location.reload();
-    }
-}
-
-// ==================== ГЛОБАЛЬНЫЕ ФУНКЦИИ ДЛЯ ONCLICK ====================
+// ==================== ГЛОБАЛЬНЫЕ ФУНКЦИИ ====================
 window.stopTimer = stopTimer;
 window.startTimer = startTimer;
 window.addPhotoToExercise = (exId) => {
@@ -509,7 +497,7 @@ window.addPhotoToExercise = (exId) => {
     input.click();
 };
 window.deleteExercisePhoto = (exId) => {
-    if(confirm("Удалить фото упражнения?")) {
+    if(confirm("Удалить фото?")) {
         delete exercisePhotos[exId];
         saveAll();
         render();

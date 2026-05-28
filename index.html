@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>GYM PRO — Твоя программа</title>
+    <title>GYM PRO — Тренировочный дневник</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0c0f; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #eef2ff; min-height: 100vh; }
@@ -31,7 +31,9 @@
         .metric-row { background: #1a1e28; border-radius: 40px; padding: 12px 16px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .progress-item { background: #1a1e28; border-radius: 20px; padding: 12px; margin-top: 12px; }
         hr { border-color: #2a2f38; margin: 12px 0; }
-        .date-badge { font-size: 11px; color: #8e96a6; margin-left: 8px; }
+        .stats-panel { background: #0f1219; border-radius: 20px; padding: 12px; margin-bottom: 16px; text-align: center; }
+        .stats-panel span { color: #ffb347; font-weight: bold; }
+        .exercise-desc { font-size: 12px; color: #8e96a6; margin: 8px 0; padding: 8px; background: #0b0e14; border-radius: 16px; }
     </style>
 </head>
 <body>
@@ -48,55 +50,54 @@
 </div>
 
 <script>
-// ==================== ТВОЯ ПРОГРАММА ТРЕНИРОВОК (из PDF) ====================
+// ==================== ТВОЯ ПРОГРАММА ТРЕНИРОВОК (ИЗ PDF) ====================
 const PROGRAM = {
     1: { name: "День 1. Жимовый (грудь, плечи, трицепс)", exercises: [
-        { name: "Жим в рычажном тренажере", sets: 4, rest: 150, id: "hammer" },
-        { name: "Жим гантелей лежа под углом 30°", sets: 3, rest: 120, id: "db30" },
-        { name: "Сведение рук в кроссовере", sets: 3, rest: 90, id: "crossover" },
-        { name: "Жим гантелей сидя", sets: 4, rest: 120, id: "seateddb" },
-        { name: "Разведение гантелей в стороны", sets: 3, rest: 90, id: "laterals" },
-        { name: "Французский жим с гантелью", sets: 3, rest: 90, id: "french" },
-        { name: "Разгибание рук на блоке", sets: 3, rest: 60, id: "pushdown" }
+        { name: "Жим в рычажном тренажере", sets: 4, rest: 150, id: "hammer", desc: "Сядьте в тренажер, спина и затылок плотно прижаты к опорам. Хват на ширине плеч. На выдохе выжмите вес вперед." },
+        { name: "Жим гантелей лежа под углом 30°", sets: 3, rest: 120, id: "db30", desc: "Скамья под углом 30°. Лопатки сведены. На вдохе опустите гантели к верху груди." },
+        { name: "Сведение рук в кроссовере", sets: 3, rest: 90, id: "crossover", desc: "Встаньте между верхними блоками. На выдохе сведите руки перед собой." },
+        { name: "Жим гантелей сидя", sets: 4, rest: 120, id: "seateddb", desc: "Сядьте на скамью с вертикальной спинкой. Выжмите вверх по дуге." },
+        { name: "Разведение гантелей в стороны", sets: 3, rest: 90, id: "laterals", desc: "Корпус слегка наклонен вперед. Поднимите руки через стороны до уровня плеч." },
+        { name: "Французский жим с гантелью", sets: 3, rest: 90, id: "french", desc: "Гантель над головой. Согните руку, опуская гантель за голову." },
+        { name: "Разгибание рук на блоке", sets: 3, rest: 60, id: "pushdown", desc: "Локти прижаты к корпусу. Разогните руки вниз." }
     ]},
     2: { name: "День 2. Тяговый (спина, бицепс)", exercises: [
-        { name: "Тяга штанги в наклоне", sets: 4, rest: 150, id: "bentrow" },
-        { name: "Тяга верхнего блока к груди", sets: 4, rest: 120, id: "latpulldown" },
-        { name: "Тяга гантели к поясу", sets: 3, rest: 105, id: "dbrow" },
-        { name: "Тяга нижнего блока к поясу", sets: 3, rest: 105, id: "seatedrow" },
-        { name: "Разведение гантелей в наклоне", sets: 3, rest: 90, id: "reardelt" },
-        { name: "Сгибание рук со штангой EZ", sets: 3, rest: 90, id: "ezcurl" },
-        { name: "Сгибание рук с гантелями молот", sets: 3, rest: 90, id: "hammercurl" },
-        { name: "Сгибание рук с канатом на блоке", sets: 3, rest: 90, id: "cablecurl" }
+        { name: "Тяга штанги в наклоне", sets: 4, rest: 150, id: "bentrow", desc: "Наклон корпуса 45-60°, спина прямая. Тяните штангу к животу." },
+        { name: "Тяга верхнего блока к груди", sets: 4, rest: 120, id: "latpulldown", desc: "Хват широкий. Тяните гриф к ключицам." },
+        { name: "Тяга гантели к поясу", sets: 3, rest: 105, id: "dbrow", desc: "Упритесь рукой и коленом в скамью. Тяните гантель к поясу." },
+        { name: "Тяга нижнего блока к поясу", sets: 3, rest: 105, id: "seatedrow", desc: "Хват узкий. Тяните рукоять к поясу." },
+        { name: "Разведение гантелей в наклоне", sets: 3, rest: 90, id: "reardelt", desc: "Наклон до параллели с полом. Разведите руки в стороны." },
+        { name: "Сгибание рук со штангой EZ", sets: 3, rest: 90, id: "ezcurl", desc: "Локти прижаты к корпусу. Согните руки, поднимая гриф." },
+        { name: "Сгибание рук с гантелями молот", sets: 3, rest: 90, id: "hammercurl", desc: "Ладони друг к другу. Согните руки, поднимая гантели." },
+        { name: "Сгибание рук с канатом на блоке", sets: 3, rest: 90, id: "cablecurl", desc: "Ладони вниз. Согните руки, поднимая канат." }
     ]},
     3: { name: "День 3. Ноги + кор", exercises: [
-        { name: "Жим ногами платформы", sets: 4, rest: 150, id: "legpress" },
-        { name: "Приседания с гантелью (Goblet)", sets: 4, rest: 150, id: "goblet" },
-        { name: "Румынская тяга с гантелями", sets: 4, rest: 150, id: "romanian" },
-        { name: "Сгибание ног лежа", sets: 3, rest: 105, id: "legcurl" },
-        { name: "Разгибание ног сидя", sets: 3, rest: 105, id: "legext" },
-        { name: "Скручивания на римском стуле", sets: 3, rest: 90, id: "crunch" },
-        { name: "Гиперэкстензия с округлением", sets: 3, rest: 90, id: "hyper" }
+        { name: "Жим ногами платформы", sets: 4, rest: 150, id: "legpress", desc: "Ноги на ширине плеч. Опускайте до угла 90°." },
+        { name: "Приседания с гантелью", sets: 4, rest: 150, id: "goblet", desc: "Гантель у груди. Приседайте до параллели." },
+        { name: "Румынская тяга с гантелями", sets: 4, rest: 150, id: "romanian", desc: "Ноги на ширине таза. Опускайте корпус, скользя гантелями по голеням." },
+        { name: "Сгибание ног лежа", sets: 3, rest: 105, id: "legcurl", desc: "Согните ноги, приводя пятки к ягодицам." },
+        { name: "Разгибание ног сидя", sets: 3, rest: 105, id: "legext", desc: "Разогните ноги, не выпрямляя до конца." },
+        { name: "Скручивания", sets: 3, rest: 90, id: "crunch", desc: "Скручивайте корпус, поднимая грудь к тазу." },
+        { name: "Гиперэкстензия", sets: 3, rest: 90, id: "hyper", desc: "Округлите спину, затем поднимитесь до прямой линии." }
     ]}
 };
 
-// ==================== ДАННЫЕ (localStorage) ====================
+// ==================== ДАННЫЕ (LOCALSTORAGE) ====================
 let currentTab = "workout";
 let currentDay = 1;
 let currentExIndex = 0;
 let timer = null;
 let timerSec = 0;
 
-// Инициализация всех хранилищ
-let logs = JSON.parse(localStorage.getItem("gym_logs")) || {};
-let workoutDays = JSON.parse(localStorage.getItem("gym_days")) || [];
-let maxWeight = JSON.parse(localStorage.getItem("gym_max_weight")) || {};
-let maxReps = JSON.parse(localStorage.getItem("gym_max_reps")) || {};
-let bodyWeight = JSON.parse(localStorage.getItem("gym_body_weight")) || [];
-let bodyMeasure = JSON.parse(localStorage.getItem("gym_measure")) || { chest: [], biceps: [], waist: [], thigh: [] };
-let photos = JSON.parse(localStorage.getItem("gym_photos")) || [];
-let exercisePhotos = JSON.parse(localStorage.getItem("gym_exercise_photos")) || {};
-let customExercises = JSON.parse(localStorage.getItem("gym_custom_ex")) || [];
+let logs = JSON.parse(localStorage.getItem("gym_logs") || "{}");
+let workoutDays = JSON.parse(localStorage.getItem("gym_days") || "[]");
+let maxWeight = JSON.parse(localStorage.getItem("gym_max_weight") || "{}");
+let maxReps = JSON.parse(localStorage.getItem("gym_max_reps") || "{}");
+let bodyWeight = JSON.parse(localStorage.getItem("gym_body_weight") || "[]");
+let bodyMeasure = JSON.parse(localStorage.getItem("gym_measure") || '{"chest":[],"biceps":[],"waist":[],"thigh":[]}');
+let photos = JSON.parse(localStorage.getItem("gym_photos") || "[]");
+let exercisePhotos = JSON.parse(localStorage.getItem("gym_exercise_photos") || "{}");
+let customExercises = JSON.parse(localStorage.getItem("gym_custom_ex") || "[]");
 
 function saveAll() {
     localStorage.setItem("gym_logs", JSON.stringify(logs));
@@ -112,10 +113,8 @@ function saveAll() {
 
 function getToday() { return new Date().toISOString().slice(0,10); }
 function getWeekAgo() { let d = new Date(); d.setDate(d.getDate()-7); return d.toISOString().slice(0,10); }
-
 function stopTimer() { if(timer) clearInterval(timer); timer = null; timerSec = 0; if(currentTab==="workout") render(); }
 function startTimer(sec) { stopTimer(); timerSec = sec; timer = setInterval(() => { if(timerSec<=1){ stopTimer(); alert("⏰ Отдых закончен!"); } else { timerSec--; if(currentTab==="workout") render(); } }, 1000); render(); }
-
 function markWorkout() { let t=getToday(); if(!workoutDays.includes(t)) { workoutDays.push(t); saveAll(); } }
 
 function updateSet(day, exId, setIdx, w, r) {
@@ -124,19 +123,11 @@ function updateSet(day, exId, setIdx, w, r) {
     if(!logs[today][day]) logs[today][day] = {};
     if(!logs[today][day][exId]) logs[today][day][exId] = [];
     logs[today][day][exId][setIdx] = { weight: w, reps: r };
-    
     let wNum = parseFloat(w), rNum = parseFloat(r);
     if(!isNaN(wNum) && wNum > (maxWeight[exId]||0)) maxWeight[exId] = wNum;
     if(!isNaN(rNum) && rNum > (maxReps[exId]||0)) maxReps[exId] = rNum;
     saveAll();
     if(currentTab==="workout") render();
-}
-
-function getTonnage(date, day, exId) {
-    let total = 0;
-    let exData = logs[date]?.[day]?.[exId] || [];
-    exData.forEach(s => { let vol = parseFloat(s.weight)*parseFloat(s.reps); if(!isNaN(vol)) total += vol; });
-    return total;
 }
 
 function getMaxWeightLastWeek(exId) {
@@ -182,20 +173,30 @@ function renderWorkout() {
     let today = getToday();
     let setsData = logs[today]?.[currentDay]?.[ex.id] || [];
     let exPhoto = exercisePhotos[ex.id];
+    let bestW = maxWeight[ex.id] || 0;
+    let bestR = maxReps[ex.id] || 0;
+    let lastWeekW = getMaxWeightLastWeek(ex.id);
+    let lastWeekR = getMaxRepsLastWeek(ex.id);
     
     let timerHtml = "";
-    if(timer) { let m = Math.floor(timerSec/60), s = timerSec%60; timerHtml = `<div class="card" style="background:#1f2a1f; text-align:center">⏱️ Отдых: ${m}:${s<10?'0'+s:s}<button onclick="stopTimer()" style="margin-left:10px">Стоп</button></div>`; }
+    if(timer) {
+        let m = Math.floor(timerSec/60), s = timerSec%60;
+        timerHtml = `<div class="card" style="background:#1f2a1f; text-align:center">⏱️ Отдых: ${m}:${s<10?'0'+s:s}<button onclick="stopTimer()" style="margin-left:10px">Стоп</button></div>`;
+    }
     
     let photoHtml = "";
     if(exPhoto) {
-        photoHtml = `<div style="margin-top:12px;"><img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')"><button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c; width:100%">🗑️ Удалить фото</button></div>`;
+        photoHtml = `<div style="margin-top:12px;">
+            <img src="${exPhoto}" class="exercise-photo" onclick="viewPhoto('${exPhoto}')">
+            <button onclick="deleteExercisePhoto('${ex.id}')" style="margin-top:8px; background:#4a1e2c; width:100%">🗑️ Удалить фото</button>
+        </div>`;
     }
     
     let setsHtml = "";
     for(let i=0; i<ex.sets; i++) {
         let s = setsData[i] || { weight: "", reps: "" };
         setsHtml += `<div class="set-row">
-            <span style="min-width:70px">Подход ${i+1}</span>
+            <span>Подход ${i+1}</span>
             <input type="number" id="w_${i}" value="${s.weight}" placeholder="кг" style="width:80px">
             <input type="number" id="r_${i}" value="${s.reps}" placeholder="повт" style="width:80px">
             <button onclick="startTimer(${ex.rest})">⏱️ ${Math.floor(ex.rest/60)}:${(ex.rest%60).toString().padStart(2,'0')}</button>
@@ -203,13 +204,25 @@ function renderWorkout() {
     }
     
     let html = `<div class="card">
-        <div class="flex-between"><span class="section-title">💪 ${day.name}</span>
-        <select id="daySelect"><option value="1">День 1 Жим</option><option value="2">День 2 Тяга</option><option value="3">День 3 Ноги</option></select></div>
+        <div class="flex-between">
+            <span class="section-title">💪 ${day.name}</span>
+            <select id="daySelect">
+                <option value="1">День 1 Жим</option>
+                <option value="2">День 2 Тяга</option>
+                <option value="3">День 3 Ноги</option>
+            </select>
+        </div>
+        <div class="stats-panel">
+            📊 <strong>ТВОИ РЕКОРДЫ В ЭТОМ УПРАЖНЕНИИ</strong><br>
+            🏆 Максимальный вес: <span>${bestW} кг</span> (неделю назад: ${lastWeekW} кг)<br>
+            🏆 Максимум повторений: <span>${bestR}</span> (неделю назад: ${lastWeekR})
+        </div>
         <div style="background:#0f1219; border-radius:24px; padding:16px; border-left:3px solid #ffb347;">
-            <div class="flex-between" style="flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+            <div class="flex-between" style="flex-wrap:wrap; gap:10px; margin-bottom:8px;">
                 <div style="font-size:18px; font-weight:bold;">🏋️ ${ex.name}</div>
                 <div><button onclick="addPhotoToExercise('${ex.id}')" style="background:#2a2f3c;">📸 Добавить фото</button></div>
             </div>
+            <div class="exercise-desc">📖 ${ex.desc}</div>
             ${photoHtml}
             ${setsHtml}
             ${timerHtml}
@@ -220,65 +233,74 @@ function renderWorkout() {
             <button id="nextEx" ${currentExIndex===day.exercises.length-1?'disabled':''}>Вперёд ▶</button>
         </div>
     </div>`;
+    
     document.getElementById("app").innerHTML = html;
     
     document.getElementById("daySelect").value = currentDay;
-    document.getElementById("daySelect").onchange = (e) => { currentDay = parseInt(e.target.value); currentExIndex = 0; stopTimer(); render(); };
+    document.getElementById("daySelect").onchange = (e) => {
+        currentDay = parseInt(e.target.value);
+        currentExIndex = 0;
+        stopTimer();
+        render();
+    };
     
     for(let i=0; i<ex.sets; i++) {
-        let w = document.getElementById(`w_${i}`), r = document.getElementById(`r_${i}`);
+        let w = document.getElementById(`w_${i}`);
+        let r = document.getElementById(`r_${i}`);
         if(w) w.onchange = (e) => updateSet(currentDay, ex.id, i, e.target.value, r?.value || "");
         if(r) r.onchange = (e) => updateSet(currentDay, ex.id, i, w?.value || "", e.target.value);
     }
     
-    document.getElementById("prevEx").onclick = () => { if(currentExIndex>0) { currentExIndex--; stopTimer(); render(); } };
-    document.getElementById("nextEx").onclick = () => {
-        if(currentExIndex+1 < day.exercises.length) { currentExIndex++; stopTimer(); render(); }
-        else { markWorkout(); alert("🎉 Тренировка завершена! Молодец!"); }
+    document.getElementById("prevEx").onclick = () => {
+        if(currentExIndex > 0) {
+            currentExIndex--;
+            stopTimer();
+            render();
+        }
     };
+    
+    document.getElementById("nextEx").onclick = () => {
+        if(currentExIndex+1 < day.exercises.length) {
+            currentExIndex++;
+            stopTimer();
+            render();
+        } else {
+            markWorkout();
+            alert("🎉 Тренировка завершена! Молодец!");
+        }
+    };
+    
     document.getElementById("completeEx").onclick = () => {
         let all = true;
         for(let i=0; i<ex.sets; i++) {
             let d = logs[getToday()]?.[currentDay]?.[ex.id]?.[i];
             if(!d || !d.weight || !d.reps) all = false;
         }
-        if(!all) alert("Заполни вес и повторения для всех подходов!");
-        else if(currentExIndex+1 < day.exercises.length) { currentExIndex++; stopTimer(); render(); }
-        else { markWorkout(); alert("✅ Тренировка дня завершена!"); }
+        if(!all) {
+            alert("Заполни вес и повторения для всех подходов!");
+        } else if(currentExIndex+1 < day.exercises.length) {
+            currentExIndex++;
+            stopTimer();
+            render();
+        } else {
+            markWorkout();
+            alert("✅ Тренировка дня завершена!");
+        }
     };
 }
 
 function renderProgress() {
-    let today = getToday();
-    let weekAgo = getWeekAgo();
-    let totalToday = 0, totalWeek = 0;
-    for(let day of [1,2,3]) {
-        for(let ex of PROGRAM[day].exercises) {
-            totalToday += getTonnage(today, day, ex.id);
-            totalWeek += getTonnage(weekAgo, day, ex.id);
-        }
-    }
-    let diffTotal = totalToday - totalWeek;
-    
-    let html = `<div class="card"><div class="section-title">📊 Прогресс</div>
-        <div class="flex-between"><span>💪 Общий тоннаж сегодня:</span><strong>${Math.round(totalToday)} кг</strong></div>
-        <div class="flex-between"><span>📆 Общий тоннаж неделю назад:</span><strong>${Math.round(totalWeek)} кг</strong></div>
-        <div class="flex-between"><span>📈 Динамика:</span><strong style="color:#ffb347">${diffTotal>0?'+':''}${Math.round(diffTotal)} кг</strong></div>
-        <hr>`;
-    
+    let html = `<div class="card"><div class="section-title">📊 Прогресс по упражнениям</div>`;
     for(let day of [1,2,3]) {
         for(let ex of PROGRAM[day].exercises) {
             let bestW = maxWeight[ex.id] || 0;
             let bestR = maxReps[ex.id] || 0;
             let lastWeekW = getMaxWeightLastWeek(ex.id);
             let lastWeekR = getMaxRepsLastWeek(ex.id);
-            let wDiff = bestW - lastWeekW;
-            let rDiff = bestR - lastWeekR;
-            
             html += `<div class="progress-item">
                 <div><strong>${ex.name}</strong></div>
-                <div class="flex-between"><span>🏆 макс. вес:</span><span>${bestW} кг <span class="date-badge">(неделю назад: ${lastWeekW} кг, ${wDiff>0?'+':''}${wDiff})</span></span></div>
-                <div class="flex-between"><span>🏆 макс. повторения:</span><span>${bestR} <span class="date-badge">(неделю назад: ${lastWeekR}, ${rDiff>0?'+':''}${rDiff})</span></span></div>
+                <div class="flex-between"><span>🏆 макс. вес:</span><span>${bestW} кг (неделю назад: ${lastWeekW} кг)</span></div>
+                <div class="flex-between"><span>🏆 макс. повторения:</span><span>${bestR} (неделю назад: ${lastWeekR})</span></div>
             </div>`;
         }
     }
@@ -288,17 +310,20 @@ function renderProgress() {
 
 function renderCalendar() {
     let todayDate = new Date();
-    let y = todayDate.getFullYear(), m = todayDate.getMonth();
+    let y = todayDate.getFullYear();
+    let m = todayDate.getMonth();
     let first = new Date(y,m,1);
-    let start = first.getDay()===0?6:first.getDay()-1;
+    let start = first.getDay() === 0 ? 6 : first.getDay() - 1;
     let daysInMonth = new Date(y,m+1,0).getDate();
     let days = [];
     for(let i=0;i<start;i++) days.push(null);
     for(let i=1;i<=daysInMonth;i++) days.push(i);
+    
     let cal = `<div class="calendar">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>`<div style="color:#ffb347">${d}</div>`).join('')}`;
     days.forEach(day => {
-        if(day===null) cal += `<div></div>`;
-        else {
+        if(day === null) {
+            cal += `<div></div>`;
+        } else {
             let dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
             let has = workoutDays.includes(dateStr);
             let isToday = (todayDate.getDate()===day && todayDate.getMonth()===m && todayDate.getFullYear()===y);
@@ -306,6 +331,7 @@ function renderCalendar() {
         }
     });
     cal += `</div><button class="btn-primary" id="goToday" style="margin-top:16px;">🏋️ Сегодняшняя тренировка</button>`;
+    
     document.getElementById("app").innerHTML = `<div class="card"><div class="section-title">📅 Календарь тренировок</div>${cal}</div>`;
     document.getElementById("goToday")?.addEventListener("click",()=>{ currentTab="workout"; render(); });
 }
@@ -315,8 +341,11 @@ function renderMeasure() {
     let html = `<div class="card"><div class="section-title">📏 Замеры тела (см) — с датами</div>`;
     for(let [name,key] of Object.entries(measures)) {
         let last = bodyMeasure[key][bodyMeasure[key].length-1] || null;
-        let lastStr = last ? `${last.value} см (${last.date})` : "—";
-        html += `<div class="metric-row"><span>${name}</span><span><strong>${lastStr}</strong></span><button onclick="addMeasure('${key}','${name}')">+ Записать</button></div>`;
+        html += `<div class="metric-row">
+            <span>${name}</span>
+            <span><strong>${last ? last.value + ' см (' + last.date + ')' : '—'}</strong></span>
+            <button onclick="addMeasure('${key}','${name}')">+ Записать</button>
+        </div>`;
         if(bodyMeasure[key].length > 0) {
             html += `<div style="font-size:11px; color:#8e96a6; margin-left:16px; margin-bottom:8px;">📋 История: ${bodyMeasure[key].slice(-5).reverse().map(m=>`${m.date} ${m.value}см`).join(' | ')}</div>`;
         }
@@ -335,9 +364,12 @@ function renderMeasure() {
 
 function renderWeight() {
     let last = bodyWeight[bodyWeight.length-1] || null;
-    let lastStr = last ? `${last.weight} кг (${last.date})` : "—";
     let html = `<div class="card"><div class="section-title">⚖️ Вес тела — с датами</div>
-        <div class="metric-row"><span>Текущий вес:</span><strong>${lastStr}</strong><button onclick="addWeight()">+ Записать</button></div>`;
+        <div class="metric-row">
+            <span>Текущий вес:</span>
+            <span><strong>${last ? last.weight + ' кг (' + last.date + ')' : '—'}</strong></span>
+            <button onclick="addWeight()">+ Записать</button>
+        </div>`;
     if(bodyWeight.length > 0) {
         html += `<div style="font-size:11px; color:#8e96a6; margin:8px 0;">📋 История: ${bodyWeight.slice(-5).reverse().map(w=>`${w.date} ${w.weight}кг`).join(' | ')}</div>`;
     }
@@ -431,28 +463,37 @@ function renderSettings() {
     });
 }
 
-// Глобальные функции
+// ==================== ГЛОБАЛЬНЫЕ ФУНКЦИИ ====================
 window.stopTimer = stopTimer;
 window.startTimer = startTimer;
+
 window.addPhotoToExercise = (exId) => {
-    let input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (e) => {
-        let file = e.target.files[0];
-        if(file) {
-            let reader = new FileReader();
-            reader.onload = (ev) => {
+    let inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = 'image/*';
+    inp.onchange = (e) => {
+        let f = e.target.files[0];
+        if(f) {
+            let r = new FileReader();
+            r.onload = (ev) => {
                 exercisePhotos[exId] = ev.target.result;
                 saveAll();
                 render();
             };
-            reader.readAsDataURL(file);
+            r.readAsDataURL(f);
         }
     };
-    input.click();
+    inp.click();
 };
-window.deleteExercisePhoto = (exId) => { if(confirm("Удалить фото?")) { delete exercisePhotos[exId]; saveAll(); render(); } };
+
+window.deleteExercisePhoto = (exId) => {
+    if(confirm("Удалить фото?")) {
+        delete exercisePhotos[exId];
+        saveAll();
+        render();
+    }
+};
+
 window.addMeasure = (key, name) => {
     let val = parseFloat(prompt(`${name} (см):`));
     if(!isNaN(val)) {
@@ -461,6 +502,7 @@ window.addMeasure = (key, name) => {
         render();
     }
 };
+
 window.addWeight = () => {
     let w = parseFloat(prompt("Вес (кг):"));
     if(!isNaN(w)) {
@@ -469,18 +511,33 @@ window.addWeight = () => {
         render();
     }
 };
+
 window.viewPhoto = (url) => {
     let modal = document.createElement('div');
     modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;flex-direction:column;';
     modal.innerHTML = `<img src="${url}" style="max-width:90%;max-height:70%;border-radius:20px;"><button onclick="this.parentElement.remove()" style="margin-top:20px;background:#ffb347;padding:10px 20px;border-radius:40px;">Закрыть</button>`;
     document.body.appendChild(modal);
 };
-window.deletePhoto = (idx) => { photos.splice(idx,1); saveAll(); render(); };
-window.deleteCustomEx = (idx) => { customExercises.splice(idx,1); saveAll(); render(); };
+
+window.deletePhoto = (idx) => {
+    photos.splice(idx,1);
+    saveAll();
+    render();
+};
+
+window.deleteCustomEx = (idx) => {
+    customExercises.splice(idx,1);
+    saveAll();
+    render();
+};
 
 document.getElementById("nav").addEventListener("click", (e) => {
     let btn = e.target.closest(".nav-btn");
-    if(btn && btn.dataset.tab) { currentTab = btn.dataset.tab; stopTimer(); render(); }
+    if(btn && btn.dataset.tab) {
+        currentTab = btn.dataset.tab;
+        stopTimer();
+        render();
+    }
 });
 
 render();

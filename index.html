@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>GYM PRO — Фото, даты, прогресс</title>
+    <title>GYM PRO — Твоя программа</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0c0f; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #eef2ff; min-height: 100vh; }
@@ -32,7 +32,6 @@
         .progress-item { background: #1a1e28; border-radius: 20px; padding: 12px; margin-top: 12px; }
         hr { border-color: #2a2f38; margin: 12px 0; }
         .date-badge { font-size: 11px; color: #8e96a6; margin-left: 8px; }
-        .week-compare { background: #0f1219; border-radius: 16px; padding: 8px; margin-top: 8px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -49,32 +48,46 @@
 </div>
 
 <script>
-// ==================== ПРОГРАММА ====================
+// ==================== ТВОЯ ПРОГРАММА ТРЕНИРОВОК (из PDF) ====================
 const PROGRAM = {
-    1: { name: "День 1. Жимовый", exercises: [
-        { name: "Жим гантелей лежа", sets: 4, rest: 120, id: "bench" },
-        { name: "Жим гантелей на наклонной", sets: 3, rest: 120, id: "incline" },
-        { name: "Разводка гантелей", sets: 3, rest: 90, id: "fly" }
+    1: { name: "День 1. Жимовый (грудь, плечи, трицепс)", exercises: [
+        { name: "Жим в рычажном тренажере", sets: 4, rest: 150, id: "hammer" },
+        { name: "Жим гантелей лежа под углом 30°", sets: 3, rest: 120, id: "db30" },
+        { name: "Сведение рук в кроссовере", sets: 3, rest: 90, id: "crossover" },
+        { name: "Жим гантелей сидя", sets: 4, rest: 120, id: "seateddb" },
+        { name: "Разведение гантелей в стороны", sets: 3, rest: 90, id: "laterals" },
+        { name: "Французский жим с гантелью", sets: 3, rest: 90, id: "french" },
+        { name: "Разгибание рук на блоке", sets: 3, rest: 60, id: "pushdown" }
     ]},
-    2: { name: "День 2. Тяговый", exercises: [
-        { name: "Тяга штанги в наклоне", sets: 4, rest: 120, id: "row" },
-        { name: "Тяга верхнего блока", sets: 4, rest: 120, id: "lat" },
-        { name: "Сгибание рук со штангой", sets: 3, rest: 90, id: "curl" }
+    2: { name: "День 2. Тяговый (спина, бицепс)", exercises: [
+        { name: "Тяга штанги в наклоне", sets: 4, rest: 150, id: "bentrow" },
+        { name: "Тяга верхнего блока к груди", sets: 4, rest: 120, id: "latpulldown" },
+        { name: "Тяга гантели к поясу", sets: 3, rest: 105, id: "dbrow" },
+        { name: "Тяга нижнего блока к поясу", sets: 3, rest: 105, id: "seatedrow" },
+        { name: "Разведение гантелей в наклоне", sets: 3, rest: 90, id: "reardelt" },
+        { name: "Сгибание рук со штангой EZ", sets: 3, rest: 90, id: "ezcurl" },
+        { name: "Сгибание рук с гантелями молот", sets: 3, rest: 90, id: "hammercurl" },
+        { name: "Сгибание рук с канатом на блоке", sets: 3, rest: 90, id: "cablecurl" }
     ]},
-    3: { name: "День 3. Ноги", exercises: [
-        { name: "Приседания", sets: 4, rest: 150, id: "squat" },
-        { name: "Жим ногами", sets: 4, rest: 150, id: "legpress" },
-        { name: "Румынская тяга", sets: 3, rest: 120, id: "rdl" }
+    3: { name: "День 3. Ноги + кор", exercises: [
+        { name: "Жим ногами платформы", sets: 4, rest: 150, id: "legpress" },
+        { name: "Приседания с гантелью (Goblet)", sets: 4, rest: 150, id: "goblet" },
+        { name: "Румынская тяга с гантелями", sets: 4, rest: 150, id: "romanian" },
+        { name: "Сгибание ног лежа", sets: 3, rest: 105, id: "legcurl" },
+        { name: "Разгибание ног сидя", sets: 3, rest: 105, id: "legext" },
+        { name: "Скручивания на римском стуле", sets: 3, rest: 90, id: "crunch" },
+        { name: "Гиперэкстензия с округлением", sets: 3, rest: 90, id: "hyper" }
     ]}
 };
 
-// ==================== ДАННЫЕ ====================
+// ==================== ДАННЫЕ (localStorage) ====================
 let currentTab = "workout";
 let currentDay = 1;
 let currentExIndex = 0;
 let timer = null;
 let timerSec = 0;
 
+// Инициализация всех хранилищ
 let logs = JSON.parse(localStorage.getItem("gym_logs")) || {};
 let workoutDays = JSON.parse(localStorage.getItem("gym_days")) || [];
 let maxWeight = JSON.parse(localStorage.getItem("gym_max_weight")) || {};
@@ -248,8 +261,8 @@ function renderProgress() {
     let diffTotal = totalToday - totalWeek;
     
     let html = `<div class="card"><div class="section-title">📊 Прогресс</div>
-        <div class="flex-between"><span>💪 Тоннаж сегодня:</span><strong>${Math.round(totalToday)} кг</strong></div>
-        <div class="flex-between"><span>📆 Тоннаж неделю назад:</span><strong>${Math.round(totalWeek)} кг</strong></div>
+        <div class="flex-between"><span>💪 Общий тоннаж сегодня:</span><strong>${Math.round(totalToday)} кг</strong></div>
+        <div class="flex-between"><span>📆 Общий тоннаж неделю назад:</span><strong>${Math.round(totalWeek)} кг</strong></div>
         <div class="flex-between"><span>📈 Динамика:</span><strong style="color:#ffb347">${diffTotal>0?'+':''}${Math.round(diffTotal)} кг</strong></div>
         <hr>`;
     
@@ -259,17 +272,13 @@ function renderProgress() {
             let bestR = maxReps[ex.id] || 0;
             let lastWeekW = getMaxWeightLastWeek(ex.id);
             let lastWeekR = getMaxRepsLastWeek(ex.id);
-            let tonnageToday = getTonnage(today, day, ex.id);
-            let tonnageWeek = getTonnage(weekAgo, day, ex.id);
             let wDiff = bestW - lastWeekW;
             let rDiff = bestR - lastWeekR;
             
             html += `<div class="progress-item">
                 <div><strong>${ex.name}</strong></div>
                 <div class="flex-between"><span>🏆 макс. вес:</span><span>${bestW} кг <span class="date-badge">(неделю назад: ${lastWeekW} кг, ${wDiff>0?'+':''}${wDiff})</span></span></div>
-                <div class="flex-between"><span>🏆 макс. повторы:</span><span>${bestR} <span class="date-badge">(неделю назад: ${lastWeekR}, ${rDiff>0?'+':''}${rDiff})</span></span></div>
-                <div class="flex-between"><span>📊 тоннаж сегодня:</span><span>${Math.round(tonnageToday)} кг</span></div>
-                <div class="flex-between"><span>📊 тоннаж неделю назад:</span><span>${Math.round(tonnageWeek)} кг</span></div>
+                <div class="flex-between"><span>🏆 макс. повторения:</span><span>${bestR} <span class="date-badge">(неделю назад: ${lastWeekR}, ${rDiff>0?'+':''}${rDiff})</span></span></div>
             </div>`;
         }
     }
@@ -297,13 +306,13 @@ function renderCalendar() {
         }
     });
     cal += `</div><button class="btn-primary" id="goToday" style="margin-top:16px;">🏋️ Сегодняшняя тренировка</button>`;
-    document.getElementById("app").innerHTML = `<div class="card"><div class="section-title">📅 Календарь</div>${cal}</div>`;
+    document.getElementById("app").innerHTML = `<div class="card"><div class="section-title">📅 Календарь тренировок</div>${cal}</div>`;
     document.getElementById("goToday")?.addEventListener("click",()=>{ currentTab="workout"; render(); });
 }
 
 function renderMeasure() {
     let measures = {Грудь:"chest", Бицепс:"biceps", Талия:"waist", Бедро:"thigh"};
-    let html = `<div class="card"><div class="section-title">📏 Замеры (см) — с датами</div>`;
+    let html = `<div class="card"><div class="section-title">📏 Замеры тела (см) — с датами</div>`;
     for(let [name,key] of Object.entries(measures)) {
         let last = bodyMeasure[key][bodyMeasure[key].length-1] || null;
         let lastStr = last ? `${last.value} см (${last.date})` : "—";
@@ -397,8 +406,9 @@ function renderExercises() {
         let name = prompt("Название упражнения:");
         if(!name) return;
         let sets = parseInt(prompt("Количество подходов:", "3"));
+        let rest = parseInt(prompt("Отдых (секунд):", "90"));
         if(name && sets) {
-            customExercises.push({ name: name, sets: sets, rest: 90, id: "custom_"+Date.now() });
+            customExercises.push({ name: name, sets: sets, rest: rest || 90, id: "custom_"+Date.now() });
             saveAll();
             render();
         }
@@ -409,7 +419,7 @@ function renderSettings() {
     document.getElementById("app").innerHTML = `<div class="card">
         <div class="section-title">⚙️ Настройки</div>
         <button class="btn-primary" id="resetBtn" style="background:#4a1e2c;">🗑️ Сбросить ВСЕ данные</button>
-        <p style="margin-top:16px;">Все данные хранятся только на вашем устройстве.</p>
+        <p style="margin-top:16px;">Все данные хранятся только на вашем устройстве (localStorage).</p>
         <hr>
         <p><small>📸 Фото упражнений и фото прогресса сохраняются отдельно.<br>💪 Тренировки автоматически отмечаются в календаре.<br>📅 Сегодняшняя дата подсвечивается в календаре.</small></p>
     </div>`;

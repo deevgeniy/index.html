@@ -265,7 +265,6 @@ function renderWorkout() {
     
     document.getElementById("app").innerHTML = html;
     
-    // Свайп
     let swipeArea = document.getElementById("swipeArea");
     if(swipeArea) {
         swipeArea.addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; });
@@ -412,9 +411,9 @@ function renderWeight() {
     });
 }
 
-// ========== ФОТО ПРОГРЕССА (РАБОТАЕТ!) ==========
+// ========== ФОТО ПРОГРЕССА (ИСПРАВЛЕНО — РАБОТАЕТ!) ==========
 function renderPhotos() {
-    let html = `<div class="card" id="photosCard">
+    let html = `<div class="card">
         <div class="section-title">📸 Фото прогресса</div>
         <button class="btn-primary" id="addPhotoBtn" style="margin-bottom:16px;">➕ Добавить фото</button>
     </div>`;
@@ -436,23 +435,26 @@ function renderPhotos() {
     
     document.getElementById("app").innerHTML = html;
     
-    let btn = document.getElementById("addPhotoBtn");
-    if(btn) {
-        btn.onclick = function() {
-            let input = document.createElement('input');
+    // Прямая привязка с проверкой
+    const addBtn = document.getElementById("addPhotoBtn");
+    if(addBtn) {
+        addBtn.onclick = function(e) {
+            e.preventDefault();
+            const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'image/*';
-            input.onchange = function(e) {
-                let file = e.target.files[0];
+            input.onchange = function(event) {
+                const file = event.target.files[0];
                 if(file) {
-                    let reader = new FileReader();
+                    const reader = new FileReader();
                     reader.onload = function(ev) {
-                        let comment = prompt("Комментарий к фото:", "Мой прогресс");
-                        photos.push({
+                        const comment = prompt("Комментарий к фото:", "Мой прогресс");
+                        const newPhoto = {
                             date: getToday(),
                             comment: comment || "",
                             data: ev.target.result
-                        });
+                        };
+                        photos.push(newPhoto);
                         saveAll();
                         render();
                     };
